@@ -29,8 +29,8 @@ var webpackConfig = merge(baseWebpackConfig, {
    output: {
     path: config.bundle.assetsRoot,
     publicPath: config.bundle.assetsPublicPath,
-    filename: 'glsx-vue-logo.min.js',
-    library: 'GlsxVueLogo',
+    filename: 'glsx-vue-components.min.js',
+    library: 'GlsxVueComponents',
     libraryTarget: 'umd'
   },
   plugins: [
