@@ -7,7 +7,7 @@
 
 <script>
     export default {
-      name: 'logo',
+      name: 'GlsxVueLogo',
       props: {
         className: {
           type: String
