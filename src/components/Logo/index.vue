@@ -1,6 +1,6 @@
 <template>
-    <h1>
-        <a :href="linkTo" :class="logoClass" :style="{ height: height +'px', width: width + 'px',background :background }">
+    <h1 slot-scope="scope">
+        <a :href="linkTo" :class="logoClass" :style="logoStyle">
         </a>
     </h1>
 </template>
@@ -24,9 +24,25 @@
           type: Number,
           default: 50
         },
-        background: {
+        backgroundColor: {
           type: String,
-          default: ''
+          default: '#fff'
+        },
+        backgroundImage: {
+          type: String,
+          default: '/'
+        }
+      },
+      data() {
+        return {
+          logoStyle: {
+            height: this.height + 'px',
+            width: this.width + 'px',
+            backgroundColor: this.backgroundColor,
+            backgroundImage: 'url("' + this.backgroundImage + '")',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center center'
+          }
         }
       },
       computed: {
@@ -56,7 +72,7 @@
   .logo:after{
     content: '';
     position: absolute;
-    width: 80px;
+    width: 50%;
     height: 100%;
     top: 0;
     overflow: hidden;
@@ -70,15 +86,15 @@
     -webkit-transform: skewX(-25deg);/*倾斜*/
     -moz-transform: skewX(-25deg);
     transform: skewX(-25deg);
-    animation: lightflow 15s linear infinite;
+    animation: lightflow 13s linear infinite;
   }
 
   @keyframes lightflow {
     90%{
-      left: -200px;  /*起始位置*/
+      left: -300px;  /*起始位置*/
     }
     100%{
-      left: 200px; /*结束位置*/
+      left: 300px; /*结束位置*/
     }
   }
 </style>
