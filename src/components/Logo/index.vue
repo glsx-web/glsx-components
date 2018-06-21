@@ -56,7 +56,6 @@
 <style  rel="stylesheet/scss" lang="scss" scoped>
   h1{
     margin: 0;
-    position: fixed;
     border-bottom: 1px solid #414550;
     border-right: 1px solid #414550;
   }

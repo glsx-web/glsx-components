@@ -18,7 +18,6 @@ export default {
     text-align: center;
     font-size: 12px;
     position: fixed;
-    bottom: 0;
     height: 40px;
     line-height: 40px;
     overflow: hidden;

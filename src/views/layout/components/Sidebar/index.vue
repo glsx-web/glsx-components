@@ -1,5 +1,5 @@
 <template>
-  <el-scrollbar wrapClass="scrollbar-wrapper">
+    <!-- <el-scrollbar wrapClass="scrollbar-wrapper"> -->
     <el-menu
       mode="vertical"
       :show-timeout="200"
@@ -11,7 +11,7 @@
     >
     <sidebar-item :routes="permission_routers"></sidebar-item>
     </el-menu>
-  </el-scrollbar>
+  <!-- </el-scrollbar> -->
 </template>
 
 <script>

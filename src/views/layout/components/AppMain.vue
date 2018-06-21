@@ -1,12 +1,8 @@
 <template>
     <section class="app-main">
       <transition name="fade" mode="out-in">
-          <EasyScrollbar>
-            <div id="warapper" :style="{ 'height': height + 'px'}">
-                <!-- <router-view :key="key"></router-view> -->
-              <router-view></router-view>
-            </div>
-        </EasyScrollbar>
+          <!-- <router-view :key="key"></router-view> -->
+          <router-view></router-view>
       </transition>
     </section>
 </template>

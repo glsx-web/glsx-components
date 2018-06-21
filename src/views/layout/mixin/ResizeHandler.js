@@ -3,7 +3,6 @@ import store from '@/store'
 const { body } = document
 const WIDTH = 1024
 const RATIO = 3
-const EXCLUDE = 124
 
 export default {
   watch: {
@@ -15,10 +14,6 @@ export default {
     window.addEventListener('resize', this._.debounce(() => { this.resizeHandler() }, 400))
   },
   mounted() {
-    // this.setMainHeight()
-    // const isMiniSize = this.isMiniSize()
-    // isMiniSize && store.dispatch('ToggleDevice', 'mobile') && store.dispatch('CloseSideBar', { withoutAnimation: true })
-    // this.toggleDevice()
     this.resize()
   },
   methods: {
@@ -26,8 +21,8 @@ export default {
       const rect = body.getBoundingClientRect()
       return rect.width - RATIO < WIDTH
     },
-    setMainHeight() {
-      store.dispatch('SetMainHeight', document.body.clientHeight - EXCLUDE)
+    setClientHeight() {
+      store.dispatch('SetClientHeight', document.body.clientHeight)
     },
     toggleDevice() {
       const isMiniSize = this.isMiniSize()
@@ -35,7 +30,7 @@ export default {
       isMiniSize && store.dispatch('CloseSideBar', { withoutAnimation: true })
     },
     resize() {
-      this.setMainHeight()
+      this.setClientHeight()
       this.toggleDevice()
     },
     resizeHandler() {

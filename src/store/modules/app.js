@@ -7,7 +7,7 @@ const app = {
       withoutAnimation: false
     },
     device: 'desktop',
-    mainHeight: 0
+    clientHeight: document.body.clientHeight
   },
   mutations: {
     TOGGLE_SIDEBAR: state => {
@@ -27,8 +27,8 @@ const app = {
     TOGGLE_DEVICE: (state, device) => {
       state.device = device
     },
-    SET_MAIN_HEIGHT: (state, mainHeight) => {
-      state.mainHeight = mainHeight
+    SET_CLIENT_HEIGHT: (state, clientHeight) => {
+      state.clientHeight = clientHeight
     }
   },
   actions: {
@@ -41,8 +41,8 @@ const app = {
     ToggleDevice({ commit }, device) {
       commit('TOGGLE_DEVICE', device)
     },
-    SetMainHeight({ commit }, mainHeight) {
-      commit('SET_MAIN_HEIGHT', mainHeight)
+    SetClientHeight({ commit }, clientHeight) {
+      commit('SET_CLIENT_HEIGHT', clientHeight)
     }
   }
 }
