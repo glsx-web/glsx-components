@@ -69,7 +69,10 @@
       },
       methods: {
         change(val) {
+          this.$emit('input', val)
           this.$emit('change', val)
+          this.$emit('blur', val)
+          this.$emit('focus', val)
         }
       }
     }
