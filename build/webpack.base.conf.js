@@ -23,24 +23,21 @@ module.exports = {
   context: path.resolve(__dirname, '../'),
   entry: {
     app: process.env.NODE_ENV === 'production'
-    ? config.build.entry
-    : config.dev.entry
+    ? './src/index.js' // 生产模式下导入文件 
+    : './src/main.js' // 开发模式下导入文件
   },
   output: {
     path: config.build.assetsRoot,
     filename: '[name].js',
     publicPath: process.env.NODE_ENV === 'production'
       ? config.build.assetsPublicPath
-      : config.dev.assetsPublicPath,
-    libraryTarget: 'umd',
-    library: 'GlsxVueComponents'
+      : config.dev.assetsPublicPath
   },
   resolve: {
     extensions: ['.js', '.vue', '.json'],
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
-      '@': resolve('src'),
-      '$': resolve('src/components'),
+      '@': resolve('src')
     }
   },
   module: {

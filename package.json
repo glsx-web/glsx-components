@@ -1,8 +1,8 @@
 {
   "name": "glsx-vue-components",
-  "version": "1.0.11",
+  "version": "1.0.13",
   "license": "MIT",
-  "description": "glsx vue element-ui components",
+  "description": "glsx vue components base on element-ui",
   "author": "limin <limin.mail@qq.com>",
   "main": "dist/glsx-vue-components.js",
   "private": false,
@@ -15,19 +15,10 @@
     "test": "npm run lint"
   },
   "dependencies": {
-    "axios": "0.17.1",
     "easyscroll": "^1.0.1",
     "element-ui": "2.3.4",
-    "js-cookie": "2.2.0",
-    "lodash": "^4.17.10",
-    "normalize.css": "7.0.0",
-    "nprogress": "0.2.0",
-    "prettier": "^1.13.4",
-    "screenfull": "^3.3.2",
-    "vue": "2.5.10",
-    "vue-i18n": "^7.7.0",
-    "vue-router": "3.0.1",
-    "vuex": "3.0.1"
+    "xlsx": "^0.13.3",
+    "vue": "2.5.10"
   },
   "devDependencies": {
     "autoprefixer": "7.2.3",
