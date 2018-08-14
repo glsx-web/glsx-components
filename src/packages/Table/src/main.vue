@@ -256,8 +256,7 @@ export default {
         inputValidator: _ => {
           return _ !== null
         },
-        inputErrorMessage: '文件名不能为空！',
-        roundButton: true
+        inputErrorMessage: '文件名不能为空！'
       }).then(({ value }) => {
         this.centerDialogVisible = false
         // 1宽度 ≈ 20像素
