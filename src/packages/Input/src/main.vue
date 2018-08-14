@@ -91,8 +91,6 @@
         model_(val) {
           this.$emit('input', val)
           this.$emit('change', val)
-          this.$emit('blur', val)
-          this.$emit('focus', val)
         },
         value(val) {
           this.model_ = val
@@ -107,9 +105,10 @@
         },
         change(val) {
           this.$emit('change', val)
+          this.$emit('input', val)
         },
-        clear(val) {
-          this.$emit('clear', val)
+        clear() {
+          this.$emit('clear', '')
         }
       }
     }
