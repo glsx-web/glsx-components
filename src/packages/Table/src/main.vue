@@ -260,10 +260,10 @@ export default {
       }).then(({ value }) => {
         this.centerDialogVisible = false
         // 1宽度 ≈ 20像素
-        const width = this.$refs.table.bodyWidth.replace('px', '') / this.table.column.length / 8
+        const width = this.$refs.table.$refs.bodyWrapper.children[0].children[1].children[0].cells
         const width_item = []
         for (let index = 0; index < this.table.column.length; index++) {
-          width_item.push({ wch: Number.parseInt(width) })
+          width_item.push({ wch: width[index].offsetWidth / 8 })
         }
         outputXlsxFile(this.getData(this.table.column, table), width_item, value)
       }).catch(err => {
