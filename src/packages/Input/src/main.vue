@@ -18,6 +18,8 @@
       @focus="focus"
       @change="change"
       @clear='clear'
+      @keyup.enter.native="input_"
+      ref='input'
   >
     <slot name='prefix' slot="prefix"></slot>
     <slot name='suffix' slot="suffix"></slot>
@@ -30,6 +32,9 @@
     export default {
       name: 'GlInput',
       props: {
+        value: {
+          type: null
+        },
         input: {
           type: Object,
           default: _ => {
@@ -41,9 +46,6 @@
         },
         type: {
           type: String
-        },
-        value: {
-          type: [String, Number]
         },
         maxlength: {
           type: Number
@@ -109,6 +111,9 @@
         },
         clear() {
           this.$emit('clear', '')
+        },
+        input_(val) {
+          this.blur()
         }
       }
     }
