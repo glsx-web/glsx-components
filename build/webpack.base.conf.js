@@ -4,7 +4,7 @@ const utils = require('./utils')
 const config = require('../config')
 const vueLoaderConfig = require('./vue-loader.conf')
 
-function resolve (dir) {
+function resolve(dir) {
   return path.join(__dirname, '..', dir)
 }
 
@@ -23,8 +23,8 @@ module.exports = {
   context: path.resolve(__dirname, '../'),
   entry: {
     app: process.env.NODE_ENV === 'production'
-    ? './src/index.js' // 生产模式下导入文件 
-    : './src/main.js' // 开发模式下导入文件
+      ? './src/index.js' // 生产模式下导入文件
+      : './src/main.js' // 开发模式下导入文件
   },
   output: {
     path: config.build.assetsRoot,
@@ -51,7 +51,7 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        include: [resolve('src'), resolve('test') ,resolve('node_modules/webpack-dev-server/client')]
+        include: [resolve('src'), resolve('test'), resolve('node_modules/webpack-dev-server/client')]
       },
       {
         test: /\.svg$/,
