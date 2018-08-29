@@ -157,7 +157,9 @@
           <input type="file" @change="importXlsx" ref="files">
           <span class="importBox-txt">导入表格</span>
         </el-button>
-        <span class="importBox-tips">{{fileName === '' ? '未选择任何文件' : fileName}}</span>
+        <span class="importBox-tips">
+          {{fileName === '' ? '未选择任何文件' : fileName}}
+        </span>
       </div>
       <el-dialog
           title="选择导出数据"
@@ -249,59 +251,63 @@ export default {
     // 导入
     importXlsx() {
       let file = this.$refs.files.files[0]
-      if(file.name.split('.')[1].toLowerCase() === 'xlsx'){
-        let reader = new FileReader()  
-        reader.onload = e => {
-          this.fileName = file.name
-          const workbook = XLSX.read(e.target.result, {
-              type: 'binary'
-          })
-          const worksheet = workbook.Sheets[workbook.SheetNames[0]]
-          const headers = {}
-          const data = []
-          const keys = Object.keys(worksheet)
-          let cols = []
-          let column = []
-          let arr = []
-          // 过滤以 ! 开头的 key
-          keys.filter(k => k[0] !== '!')
-          // 遍历所有单元格
-          .forEach(k => {
-            // 如 A1 中的 A
-            let col = k.substring(0, 1)
-            // 如 A1 中的 1
-            let row = parseInt(k.substring(1));
-            // 当前单元格的值
-            let value = worksheet[k].w
-            // 保存字段名
-            if (row === 1) {
-              headers[col] = value
-              return;
-            }          
-            // 解析成 JSON
-            if (!data[row]) {
-              data[row] = {}
-            }
-            data[row][headers[col]] = value
-            cols.push(col)
-            cols = Array.from(new Set([...[],...cols]))
-          })
-          for (let index = 0; index < cols.length; index++) {
-            column.push({
-              label: headers[cols[index]],
-              prop: headers[cols[index]]
+      if(file){
+        if(file.name.split('.')[1].toLowerCase() === 'xlsx'){
+          this.table.column = []
+          this.table.data = []  
+          let reader = new FileReader()  
+          reader.onload = e => {
+            const workbook = XLSX.read(e.target.result, {
+                type: 'binary'
             })
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]]
+            const headers = {}
+            const data = []
+            const keys = Object.keys(worksheet)
+            let cols = []
+            let column = []
+            let arr = []
+            // 过滤以 ! 开头的 key
+            keys.filter(k => k[0] !== '!')
+            // 遍历所有单元格
+            .forEach(k => {
+              // 如 A1 中的 A
+              let col = k.substring(0, 1)
+              // 如 A1 中的 1
+              let row = parseInt(k.substring(1));
+              // 当前单元格的值
+              let value = worksheet[k].w
+              // 保存字段名
+              if (row === 1) {
+                headers[col] = value
+                return;
+              }          
+              // 解析成 JSON
+              if (!data[row]) {
+                data[row] = {}
+              }
+              data[row][headers[col]] = value
+              cols.push(col)
+              cols = Array.from(new Set([...[],...cols]))
+            })
+            for (let index = 0; index < cols.length; index++) {
+              column.push({
+                label: headers[cols[index]],
+                prop: headers[cols[index]]
+              })
+            }
+            
+            for (const iterator of data) {
+              if(iterator) arr.push(iterator)
+            }
+            this.table.data = arr
+            this.table.column = column
           }
-          
-          for (const iterator of data) {
-            if(iterator) arr.push(iterator)
-          }
-          this.table.data = arr
-          this.table.column = column
+          reader.readAsBinaryString(file)
+        }else{
+          this.$message.error('只能上传xlsx文件')
         }
-        reader.readAsBinaryString(file)
-      }else{
-        this.$message.error('只能上传xlsx文件')
+        this.fileName = file.name
       }
     },
     // 导出弹框
@@ -465,5 +471,17 @@ export default {
     }
     .importBox-tips{
       font-size: 14px;
+      display: inline-block;
+      margin-left: 5px;
+    }
+    .importBox-tips i{
+      display: inline-block;
+      margin-left: 5px;
+    }
+    .importBox-tips .el-icon-success{
+      color: #67C23A;
+    }
+    .importBox-tips .el-icon-error{
+      color: #F56C6C;
     }
 </style>
