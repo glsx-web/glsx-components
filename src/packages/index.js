@@ -26,6 +26,7 @@ import DropdownItem from './DropdownItem'
 import Form from './Form'
 import FormItem from './FormItem'
 import Header from './Header'
+import InputMasked from './InputMasked'
 import Input from './Input'
 import InputNumber from './InputNumber'
 import Popover from './Popover'
@@ -36,7 +37,6 @@ import RadioButton from './RadioButton'
 import RadioGroup from './RadioGroup'
 import Rate from './Rate'
 import Row from './Row'
-import Scroll from './Scroll'
 import Select from './Select'
 import Slider from './Slider'
 import Switch from './Switch'
@@ -90,6 +90,7 @@ export {
   Form,
   FormItem,
   Input,
+  InputMasked,
   InputNumber,
   Popover,
   Progress,
@@ -99,7 +100,6 @@ export {
   RadioGroup,
   Rate,
   Row,
-  Scroll,
   Select,
   Slider,
   Switch,

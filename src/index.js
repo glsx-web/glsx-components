@@ -25,6 +25,7 @@ import {
   Form,
   FormItem,
   Input,
+  InputMasked,
   InputNumber,
   Popover,
   Progress,
@@ -34,7 +35,6 @@ import {
   RadioGroup,
   Rate,
   Row,
-  Scroll,
   Select,
   Slider,
   Switch,
@@ -90,6 +90,7 @@ const components = [
   Form,
   FormItem,
   Input,
+  InputMasked,
   InputNumber,
   Popover,
   Progress,
@@ -99,7 +100,6 @@ const components = [
   RadioGroup,
   Rate,
   Row,
-  Scroll,
   Select,
   Slider,
   Switch,
@@ -129,9 +129,11 @@ const components = [
 ]
 import 'element-ui/lib/theme-chalk/index.css'
 import ElementUI from 'element-ui'
+import Masked from 'vue-masked-input'
 const GlsxVueComponents = {}
 GlsxVueComponents.install = Vue => {
   Vue.use(ElementUI)
+  Vue.component('masked-input', Masked)
   components.map(component => {
     Vue.component(component.name, component)
   })
