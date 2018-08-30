@@ -1,36 +1,68 @@
 <template>
   <div class="masked-box" ref="maskedBox">
      <!-- 前置内容 -->
-    <span class="prepend" ref="prepend" v-if="prepend"><slot name='prepend'></slot></span>
-    <masked-input 
+    <span class="prepend" v-if="$slots.prepend"><slot name='prepend'></slot></span>
+    <masked-input
       class="masked"
       v-model="model_" 
       :mask='mask'
       :placeholder="placeholder"
       :placeholderChar='placeholderChar'
-      
+      :disabled='disabled'
     />
     <!-- 头部内容 -->
-    <span class="prefix" ref="prefix" v-if="prefix"><slot name='prefix'></slot></span>
+    <span class="prefix" v-if="$slots.prefix || prefixIcon">
+      <slot name='prefix'></slot>
+      <i class="el-input__icon"
+           v-if="prefixIcon"
+           :class="prefixIcon">
+      </i>
+    </span>
     <!-- 尾部内容 -->
-    <span class="suffix" ref="suffix" v-if="suffix"><slot name='suffix'></slot></span>
+    <span class="suffix" v-if="$slots.suffix || suffixIcon || showClear">
+        <template v-if="!showClear">
+          <slot name='suffix'></slot>
+          <i class="el-input__icon"
+            v-if="suffixIcon"
+            :class="suffixIcon">
+          </i>
+        </template>
+        <i v-else
+          class="el-input__icon el-icon-circle-close el-input__clear clear"
+          @click="clear"
+        ></i>
+      </span>
     <!-- 后置内容 -->
-    <span class="append" ref="append" v-if="append"><slot name='append'></slot></span>
+    <span class="append" v-if="$slots.append"><slot name='append'></slot></span>
+    <!-- 清空按钮 -->
+    <i class=".el-input__icon clear" v-if="showClear"></i>
   </div>
 </template>
 
 <script type='text/ecmascript-6'>
+import MaskedInput from 'vue-masked-input'
   export default {
     name: 'GlMasked',
-    data: () => ({
-      model_: this.value,
-      prefix: true,
-      suffix: true,
-      prepend: true,
-      append: true
-    }),
+    components: {
+      MaskedInput
+    },
+    data () {
+      return {
+        model_: this.value,
+        prefix: true,
+        suffix: true,
+        prepend: true,
+        append: true
+      }
+    },
     props: {
-      value: null,
+      value: {
+        type: null
+      },
+      clearable: {
+        type: Boolean,
+        default: false
+      },
       mask: {
         type: null
       },
@@ -43,19 +75,27 @@
         type: String,
         default: '_'
       },
-      size: String
+      size: String,
+      suffixIcon: String,
+      prefixIcon: String
     },
     watch: {
       model_(val) {
         this.$emit("input", val)
-        this.$emit("change", val)
       },
       value(val) {
         this.model_ = val
       }
     },
     methods: {
-
+      clear() {
+        this.model_ = ''
+      }
+    },
+    computed: {
+      showClear() {
+        return this.clearable && this.model_ !== ''
+      }
     },
     mounted() {
       switch(this.size) {
@@ -69,10 +109,6 @@
           this.$refs.maskedBox.classList.add('small')
           break
       }
-      this.prefix =  this.$refs.prefix.innerHTML === '' ? false : true
-      this.suffix =  this.$refs.suffix.innerHTML === '' ? false : true
-      this.prepend =  this.$refs.prepend.innerHTML === '' ? false : true
-      this.append =  this.$refs.append.innerHTML === '' ? false : true
       if (this.prepend) {
         this.$refs.maskedBox.classList.add('group')
         this.$refs.maskedBox.classList.add('group-prepend')
@@ -89,9 +125,6 @@
         this.$refs.maskedBox.classList.add('group')
         this.$refs.maskedBox.classList.add('group-suffix')
       }
-    },
-    watch: {
-      
     }
   }
 </script>
@@ -169,7 +202,7 @@
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }
-  .group .prefix,.group .suffix{
+  .group .prefix,.group .suffix,.clear{
     position: absolute;
     top: 0;
     transition: all .3s;
@@ -186,7 +219,7 @@
   .group-suffix .masked{
     padding-right: 30px;
   }
-  .group-suffix .suffix{
+  .group-suffix .suffix,.clear{
     right: 5px;
   }
   .medium .masked,medium .el-input__icon{
@@ -203,5 +236,8 @@
     height: 28px;
     line-height: 28px;
     font-size: 12px;
+  }
+  .masked-box .clear{
+    cursor: pointer;
   }
 </style>
