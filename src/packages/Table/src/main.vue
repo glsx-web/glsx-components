@@ -3,7 +3,7 @@
     <div>
       <el-table
         ref="table"
-        :data="this.pagination.show ? this.pageData : table.data"
+        :data="pagination.show ? pageData : data_"
         :stripe='table.stripe'
         :border='table.border'
         :height='table.height'
@@ -189,7 +189,7 @@ const outputXlsxFile = (data, wscols, xlsxName) => {
   const wb = XLSX.utils.book_new()
   console.log(wb)
   XLSX.utils.book_append_sheet(wb, ws, xlsxName)
-  XLSX.writeFile(wb, xlsxName + ".xlsx")
+  XLSX.writeFile(wb, xlsxName + '.xlsx')
 }
 export default {
   name: 'GlTable',
@@ -211,6 +211,7 @@ export default {
   },
   data() {
     return {
+      data_: this.table.data ? this.table.data : [],
       fileName: '',
       arr: [],
       select_items: [],
@@ -228,7 +229,7 @@ export default {
       cellClick: this.table.cellClick === undefined ? () => null : this.table.cellClick,
       mouseLeave: this.table.cellMouseLeave === undefined ? () => null : this.table.cellMouseLeave,
       mouseHover: this.table.cellMouseEnter === undefined ? () => null : this.table.cellMouseEnter,
-      select: this.table.select === undefined ?  this._select : this.table.select,
+      select: this.table.select === undefined ? this._select : this.table.select,
       selectAll: this.table.selectAll === undefined ? this._selectAll : this.table.selectAll,
       selectionChange: this.table.selectionChange === undefined ? this._selectionChange : this.table.selectionChange,
       currentChange: this.table.currentChange === undefined ? () => null : this.table.currentChange,
@@ -250,61 +251,61 @@ export default {
   methods: {
     // 导入
     importXlsx() {
-      let file = this.$refs.files.files[0]
-      if(file){
-        if(file.name.split('.')[1].toLowerCase() === 'xlsx'){
+      const file = this.$refs.files.files[0]
+      if (file) {
+        if (file.name.split('.')[1].toLowerCase() === 'xlsx') {
           this.table.column = []
-          this.table.data = []  
-          let reader = new FileReader()  
+          this.table.data = []
+          const reader = new FileReader()
           reader.onload = e => {
             const workbook = XLSX.read(e.target.result, {
-                type: 'binary'
+              type: 'binary'
             })
             const worksheet = workbook.Sheets[workbook.SheetNames[0]]
             const headers = {}
             const data = []
             const keys = Object.keys(worksheet)
             let cols = []
-            let column = []
-            let arr = []
+            const column = []
+            const arr = []
             // 过滤以 ! 开头的 key
             keys.filter(k => k[0] !== '!')
             // 遍历所有单元格
-            .forEach(k => {
+              .forEach(k => {
               // 如 A1 中的 A
-              let col = k.substring(0, 1)
-              // 如 A1 中的 1
-              let row = parseInt(k.substring(1));
-              // 当前单元格的值
-              let value = worksheet[k].w
-              // 保存字段名
-              if (row === 1) {
-                headers[col] = value
-                return;
-              }          
-              // 解析成 JSON
-              if (!data[row]) {
-                data[row] = {}
-              }
-              data[row][headers[col]] = value
-              cols.push(col)
-              cols = Array.from(new Set([...[],...cols]))
-            })
+                const col = k.substring(0, 1)
+                // 如 A1 中的 1
+                const row = parseInt(k.substring(1))
+                // 当前单元格的值
+                const value = worksheet[k].w
+                // 保存字段名
+                if (row === 1) {
+                  headers[col] = value
+                  return
+                }
+                // 解析成 JSON
+                if (!data[row]) {
+                  data[row] = {}
+                }
+                data[row][headers[col]] = value
+                cols.push(col)
+                cols = Array.from(new Set([...[], ...cols]))
+              })
             for (let index = 0; index < cols.length; index++) {
               column.push({
                 label: headers[cols[index]],
                 prop: headers[cols[index]]
               })
             }
-            
             for (const iterator of data) {
-              if(iterator) arr.push(iterator)
+              if (iterator) arr.push(iterator)
             }
-            this.table.data = arr
-            this.table.column = column
+            this.$set(this.table, 'data', arr)
+            this.$set(this.table, 'column', column)
+            this.data_ = this.table.data
           }
           reader.readAsBinaryString(file)
-        }else{
+        } else {
           this.$message.error('只能上传xlsx文件')
         }
         this.fileName = file.name
@@ -314,59 +315,59 @@ export default {
     openDialog() {
       this.select_items = []
       for (const iterator of this.arr) {
-        if(iterator) this.select_items = [...this.select_items, ...iterator]
+        if (iterator) this.select_items = [...this.select_items, ...iterator]
       }
       this.centerDialogVisible = true
     },
     keyupDialog(event) {
-      if(event.key === 'Enter' && this.centerDialogVisible === true) this.exportTable()
+      if (event.key === 'Enter' && this.centerDialogVisible === true) this.exportTable()
     },
     // 导出
     exportTable() {
-      let table = this.pagination.show ? this.radio === '全部' ? this.tableData : this.radio === '当前页' ? this.pageData : this.select_items : this.radio === '选中' ? this.selectionItem :this.table.data
+      const table = this.pagination.show ? this.radio === '全部' ? this.tableData : this.radio === '当前页' ? this.pageData : this.select_items : this.radio === '选中' ? this.selectionItem : this.table.data
       this.$prompt('请输入文件名', {
         confirmButtonText: '确 定 (Enter)',
         cancelButtonText: '取 消 (Esc)',
-        inputValidator: _ =>{
+        inputValidator: _ => {
           return _ !== null
         },
         inputErrorMessage: '文件名不能为空！'
       }).then(({ value }) => {
         this.centerDialogVisible = false
         // 1宽度 ≈ 20像素
-        let width = this.$refs.table.$refs.bodyWrapper.children[0].children[1].children[0].cells
-        let width_item = []
+        const width = this.$refs.table.$refs.bodyWrapper.children[0].children[1].children[0].cells
+        const width_item = []
         for (let index = 0; index < this.table.column.length; index++) {
-            width_item.push({ wch: width[index].offsetWidth / 8 })
+          width_item.push({ wch: width[index].offsetWidth / 8 })
         }
         outputXlsxFile(this.getData(this.table.column, table), width_item, value)
-      }).catch(err =>{
+      }).catch(err => {
         console.log(err)
       })
     },
     getData(list, data) {
-      let title = []
-      let arr = []
+      const title = []
+      const arr = []
       let arr2 = []
       for (let index = 0; index < list.length; index++) {
-        title.push(list[index].label)       
+        title.push(list[index].label)
       }
       arr.push(title)
-      for (let index = 0; index < data.length; index++) {      
+      for (let index = 0; index < data.length; index++) {
         for (let i = 0; i < list.length; i++) {
           arr2.push(data[index][list[i].prop])
         }
         arr.push(arr2)
         arr2 = []
-      }    
+      }
       return arr
     },
     _select(val) {
       this.selectionItem = val
-      this.arr[this.pagination.currentPage-1] = Array.from(new Set([...[], ...val]))
+      this.arr[this.pagination.currentPage - 1] = Array.from(new Set([...[], ...val]))
     },
     _selectAll(val) {
-      this.arr[this.pagination.currentPage-1] = val
+      this.arr[this.pagination.currentPage - 1] = val
     },
     _selectionChange(val) {
       this.selectionItem = val
@@ -389,45 +390,45 @@ export default {
         }
       }
       setTimeout(_ => {
-        if(this.arr[this.pagination.currentPage-1]) {
-          this.arr[this.pagination.currentPage-1].forEach(row => {
+        if (this.arr[this.pagination.currentPage - 1]) {
+          this.arr[this.pagination.currentPage - 1].forEach(row => {
             this.$refs.table.toggleRowSelection(row)
           })
         }
-      },10)
-      
+      }, 10)
     },
     setData(data) {
       this.pagination.total = data.length
       if (this.pagination.total > this.pageSize) {
-        for (let i = (this.pagination.currentPage-1) * this.pageSize; i <this.pageSize * this.pagination.currentPage; i++) {
+        for (let i = (this.pagination.currentPage - 1) * this.pageSize; i < this.pageSize * this.pagination.currentPage; i++) {
           this.pageData.push(data[i])
         }
       } else {
+        // this.$set(this.pageData, this.tableData)
         this.pageData = this.tableData
       }
+      clearInterval(time)
     },
     getTableData() {
       if (this.table.api) {
-        this.$axios.get(this.table.api).then( res => {
+        this.$axios.get(this.table.api).then(res => {
           this.tableData = res.data.data
-        }).catch( err => {
+        }).catch(err => {
           console.log(err)
         })
       } else {
         this.tableData = this.table.data
-      } 
+      }
       this.setData(this.tableData)
     }
   },
   mounted() {
     this.pagination.currentPage === undefined ? this.pagination.currentPage = 1 : this.pagination.currentPage
-    time = setInterval( _ => {
-      if(this.pageData.length === 0 && this.pagination.show) {
+    time = setInterval(_ => {
+      if (this.pageData.length === 0 && this.pagination.show) {
         this.getTableData()
-        clearInterval(time)
       }
-    },1000)
+    }, 1000)
   }
 }
 </script>
