@@ -5,10 +5,11 @@
     <masked-input
       class="masked"
       v-model="model_" 
-      :mask='mask'
+      :mask='mask_'
       :placeholder="placeholder"
       :placeholderChar='placeholderChar'
-      :disabled='disabled'
+      :keepCharPositions='keepCharPositions'
+      :guide="guide"
     />
     <!-- 头部内容 -->
     <span class="prefix" v-if="$slots.prefix || prefixIcon">
@@ -34,99 +35,106 @@
       </span>
     <!-- 后置内容 -->
     <span class="append" v-if="$slots.append"><slot name='append'></slot></span>
-    <!-- 清空按钮 -->
-    <i class=".el-input__icon clear" v-if="showClear"></i>
   </div>
 </template>
 
 <script type='text/ecmascript-6'>
-import MaskedInput from 'vue-masked-input'
-  export default {
-    name: 'GlMasked',
-    components: {
-      MaskedInput
+import emailMask from 'text-mask-addons/dist/emailMask'
+import MaskedInput from 'vue-text-mask'
+export default {
+  name: 'GlMasked',
+  components: {
+    MaskedInput
+  },
+  data() {
+    return {
+      mask_: this.email ? emailMask : this.mask,
+      model_: this.value,
+      prefix: true,
+      suffix: true,
+      prepend: true,
+      append: true
+    }
+  },
+  props: {
+    keepCharPositions: {
+      type: Boolean,
+      default: false
     },
-    data () {
-      return {
-        model_: this.value,
-        prefix: true,
-        suffix: true,
-        prepend: true,
-        append: true
-      }
+    guide: {
+      type: Boolean,
+      default: false
     },
-    props: {
-      value: {
-        type: null
-      },
-      clearable: {
-        type: Boolean,
-        default: false
-      },
-      mask: {
-        type: null
-      },
-      placeholder: String,
-      disabled: {
-        type: Boolean,
-        default: false
-      },
-      placeholderChar: {
-        type: String,
-        default: '_'
-      },
-      size: String,
-      suffixIcon: String,
-      prefixIcon: String
+    email: {
+      type: Boolean
     },
-    watch: {
-      model_(val) {
-        this.$emit("input", val)
-      },
-      value(val) {
-        this.model_ = val
-      }
+    value: {
+      type: null
     },
-    methods: {
-      clear() {
-        this.model_ = ''
-      }
+    clearable: {
+      type: Boolean,
+      default: false
     },
-    computed: {
-      showClear() {
-        return this.clearable && this.model_ !== ''
-      }
+    mask: {
+      type: null
     },
-    mounted() {
-      switch(this.size) {
-        case 'mini':
-          this.$refs.maskedBox.classList.add('mini')
-          break
-        case 'medium':
-          this.$refs.maskedBox.classList.add('medium')
-          break
-        case 'small':
-          this.$refs.maskedBox.classList.add('small')
-          break
-      }
-      if (this.prepend) {
-        this.$refs.maskedBox.classList.add('group')
-        this.$refs.maskedBox.classList.add('group-prepend')
-      }
-      if (this.append) {
-        this.$refs.maskedBox.classList.add('group')
-        this.$refs.maskedBox.classList.add('group-append')
-      }
-      if (this.prefix) {
-        this.$refs.maskedBox.classList.add('group')
-        this.$refs.maskedBox.classList.add('group-prefix')
-      }
-      if (this.suffix) {
-        this.$refs.maskedBox.classList.add('group')
-        this.$refs.maskedBox.classList.add('group-suffix')
-      }
+    placeholder: String,
+    placeholderChar: {
+      type: String,
+      default: '_'
+    },
+    size: String,
+    suffixIcon: String,
+    prefixIcon: String
+  },
+  watch: {
+    model_(val) {
+      this.$emit('input', val)
+    },
+    value(val) {
+      this.model_ = val
+    }
+  },
+  methods: {
+    clear() {
+      this.model_ = ''
+    }
+  },
+  computed: {
+    showClear() {
+      return this.clearable && this.model_ !== ''
+    }
+  },
+  mounted() {
+    switch (this.size) {
+      case 'mini':
+        this.$refs.maskedBox.classList.add('mini')
+        break
+      case 'medium':
+        this.$refs.maskedBox.classList.add('medium')
+        break
+      case 'small':
+        this.$refs.maskedBox.classList.add('small')
+        break
+    }
+    if (this.prepend) {
+      this.$refs.maskedBox.classList.add('group')
+      this.$refs.maskedBox.classList.add('group-prepend')
+    }
+    if (this.append) {
+      this.$refs.maskedBox.classList.add('group')
+      this.$refs.maskedBox.classList.add('group-append')
+    }
+    if (this.prefix) {
+      this.$refs.maskedBox.classList.add('group')
+      this.$refs.maskedBox.classList.add('group-prefix')
+    }
+    if (this.suffix) {
+      this.$refs.maskedBox.classList.add('group')
+      this.$refs.maskedBox.classList.add('group-suffix')
     }
   }
+}
 </script>
 
 <style scoped>

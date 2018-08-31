@@ -17,7 +17,8 @@
   "dependencies": {
     "easyscroll": "^1.0.1",
     "element-ui": "2.4.6",
-	  "vue-masked-input": "^0.5.2",
+    "vue-text-mask": "^6.1.2",
+    "text-mask-addons": "^3.8.0",
     "xlsx": "^0.13.3",
     "vue": "2.5.10"
   },
