@@ -13,6 +13,7 @@
       <el-tree 
       :data='data_'
       @node-click='click'
+      node-key='id'
       :render-content="renderContent">
       </el-tree>
     </div>
@@ -34,11 +35,27 @@
     },
     props: {
       data: Array,
-      value: null
+      value: null,
+      props: {
+        type: Object,
+        default: () => {
+          return {
+            label: 'label',
+            children: 'children'
+          }
+        }
+      }
     },
     watch: {
       tree(val) {
         this.icon = val ? 'el-icon-caret-top' : 'el-icon-caret-bottom'
+      },
+      model_(val) {
+        this.$emit('input', val)
+        this.$emit('change', val)
+      },
+      value(val) {
+        this.model_ = val
       }
     },
     methods: {
@@ -47,14 +64,14 @@
         for (const iterator of this.data) {
           if (val !== '') {
             const rex = new RegExp(`${val}`, 'g')
-            if (iterator['children']) {
+            if (iterator[this.props['children']]) {
               for (const children of iterator['children']) {
-                if (rex.test(children['label'])) {
+                if (rex.test(children[this.props['label']])) {
                   this.data_.push(children)
                 }
               }
             }
-            if (rex.test(iterator['label'])) {
+            if (rex.test(iterator[this.props['label']])) {
               this.data_.push(iterator)
             }
           }
@@ -84,9 +101,6 @@
             </span>
           </span>)
       }
-    },
-    mounted() {
-  
     }
   }
 </script>
@@ -105,5 +119,7 @@
     border-radius: 4px;
     border: 1px solid #e5e5e5;
     box-sizing: border-box;
+    max-height: 300px;
+    overflow-y: scroll;
   }
 </style>
