@@ -27,6 +27,7 @@ import Form from './Form'
 import FormItem from './FormItem'
 import Header from './Header'
 import InputMasked from './InputMasked'
+import InputTree from './InputTree'
 import Input from './Input'
 import InputNumber from './InputNumber'
 import Popover from './Popover'
@@ -92,6 +93,7 @@ export {
   Input,
   InputMasked,
   InputNumber,
+  InputTree,
   Popover,
   Progress,
   Pagination,

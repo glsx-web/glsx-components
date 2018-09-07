@@ -36,6 +36,7 @@
     @node-drag-over='nodeDragOver'
     @node-drag-end='nodeDragEnd'
     @node-drop='nodeDrop'
+    ref='tree'
   >
     <slot name='content' slot-scope="{ node, data }"></slot>
   </el-tree>
