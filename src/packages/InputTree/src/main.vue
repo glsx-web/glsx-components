@@ -7,7 +7,7 @@
       @blur="closeTree"
       class="input"
       ref="input"
-      @input='change'
+      @input='search'
     ></el-input>
     <div class="tree" v-if="tree" :style="{top:top}">
       <el-tree 
@@ -49,36 +49,27 @@
     watch: {
       tree(val) {
         this.icon = val ? 'el-icon-caret-top' : 'el-icon-caret-bottom'
-      },
-      model_(val) {
-        this.$emit('input', val)
-        this.$emit('change', val)
-      },
-      value(val) {
-        this.model_ = val
       }
     },
     methods: {
-      change(val) {
+      search(val) {
+        const data = this.data
         this.data_ = val === '' ? this.data : []
-        for (const iterator of this.data) {
-          if (val !== '') {
-            const rex = new RegExp(`${val}`, 'g')
-            if (iterator[this.props['children']]) {
-              for (const children of iterator['children']) {
-                if (rex.test(children[this.props['label']])) {
-                  this.data_.push(children)
-                }
-              }
-            }
-            if (rex.test(iterator[this.props['label']])) {
-              this.data_.push(iterator)
-            }
+        if (val !== '') this.searchLabel(data)
+      },
+      searchLabel(data) {
+        const rex = new RegExp(`${this.model_}`, 'g')
+        data.forEach(el => {
+          if (rex.test(el.label)) {
+            this.data_.push(el)
           }
-        }
+          if (el.children) {
+            this.searchLabel(el.children)
+          }
+        })
       },
       openTree(val) {
-        this.data_ = this.data
+        if (this.data_.length === 0) this.data_ = this.data
         this.tree = true
         this.top = `${this.$refs.input.$el.offsetHeight}px`
       },
@@ -86,11 +77,25 @@
         this.$refs.input.$el.children[0].focus()
       },
       closeTree() {
-        if (!this.inThis) this.tree = false
+        if (!this.inThis) {
+          if (this.model_ !== '') {
+            const rex = new RegExp(`${this.model_}`, 'g')
+            this.data_.forEach(el => {
+              if (this.model_ !== el.label) {
+                if (rex.test(el.label)) {
+                  this.model_ = el.label
+                  this.$emit('input', el.label)
+                }
+              }
+            })
+          }
+          this.tree = false
+        }
       },
-      choose(data, node, vue) {
+      choose(data) {
         this.model_ = data.label
         this.tree = false
+        this.$emit('input', data.label)
       },
       renderContent(h, { node, data, store }) {
         return (
