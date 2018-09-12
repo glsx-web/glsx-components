@@ -7,15 +7,18 @@
       @blur="closeTree"
       class="input"
       ref="input"
-      @input='search'
     ></el-input>
-    <div class="tree" v-if="tree" :style="{top:top}">
-      <el-tree 
-      :data='data_'
-      @node-click='click'
-      node-key='id'
-      :render-content="renderContent">
-      </el-tree>
+    <div class="treebox" v-if="tree" :style="{top:top}">
+      <div class="arrow"></div>
+      <div class="tree" >
+        <el-tree 
+        :data='data_'
+        :props='props'
+        @node-click='click'
+        node-key='id'
+        :render-content="renderContent">
+        </el-tree>
+      </div>
     </div>
   </div>
 </template>
@@ -49,6 +52,11 @@
     watch: {
       tree(val) {
         this.icon = val ? 'el-icon-caret-top' : 'el-icon-caret-bottom'
+      },
+      model_(val) {
+        const data = this.data
+        this.data_ = val === '' ? this.data : []
+        if (val !== '') this.searchLabel(data)
       }
     },
     methods: {
@@ -60,18 +68,19 @@
       searchLabel(data) {
         const rex = new RegExp(`${this.model_}`, 'g')
         data.forEach(el => {
-          if (rex.test(el.label)) {
+          if (el[this.props.label].search(rex) !== -1) {
             this.data_.push(el)
+            // this.data_ = Array.from(new Set([...this.data_, el]))
           }
           if (el.children) {
-            this.searchLabel(el.children)
+            this.searchLabel(el[this.props.children])
           }
         })
       },
       openTree(val) {
         if (this.data_.length === 0) this.data_ = this.data
         this.tree = true
-        this.top = `${this.$refs.input.$el.offsetHeight}px`
+        this.top = `${this.$refs.input.$el.offsetHeight + 25}px`
       },
       click() {
         this.$refs.input.$el.children[0].focus()
@@ -81,10 +90,10 @@
           if (this.model_ !== '') {
             const rex = new RegExp(`${this.model_}`, 'g')
             this.data_.forEach(el => {
-              if (this.model_ !== el.label) {
-                if (rex.test(el.label)) {
-                  this.model_ = el.label
-                  this.$emit('input', el.label)
+              if (this.model_ !== el[this.props.label]) {
+                if (rex.test(el[this.props.label])) {
+                  this.model_ = el[this.props.label]
+                  this.$emit('input', this.model_)
                 }
               }
             })
@@ -93,9 +102,9 @@
         }
       },
       choose(data) {
-        this.model_ = data.label
+        this.model_ = data[this.props.label]
         this.tree = false
-        this.$emit('input', data.label)
+        this.$emit('input', this.model_)
       },
       renderContent(h, { node, data, store }) {
         return (
@@ -114,7 +123,7 @@
   .inputTree{
     position: relative;
   }
-  .tree{
+  .treebox{
     width: 100%;
     position: absolute;
     padding: 15px;
@@ -124,7 +133,39 @@
     border-radius: 4px;
     border: 1px solid #e5e5e5;
     box-sizing: border-box;
-    max-height: 300px;
+  }
+  .tree{
+     max-height: 300px;
     overflow-y: scroll;
+  }
+  .tree::-webkit-scrollbar {
+    width: 6px;
+    background-color: #fff;
+    border-radius: 8px;
+  }
+  .tree::-webkit-scrollbar-thumb {
+    background-color: hsla(220,4%,58%,.3);
+    border-radius: 8px;
+  }
+  .arrow{
+    position: absolute;
+    left: 50%;
+    top: -42px;
+    border-top: 21px solid transparent;
+    border-right: 21px solid transparent;
+    border-left: 21px solid transparent;
+    border-bottom: 21px solid #e5e5e5;
+    transform: translateX(-50%);
+  }
+  .arrow::after{
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -18px;
+    border-top: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-left: 20px solid transparent;
+    border-bottom: 20px solid #fff;
+    transform: translateX(-50%);
   }
 </style>
