@@ -16,7 +16,7 @@
         :props='props'
         @node-click='click'
         node-key='id'
-        :render-content="renderContent">
+        >
         </el-tree>
       </div>
     </div>
@@ -49,6 +49,9 @@
         }
       }
     },
+    mounted() {
+      if (this.props['children'] === undefined) this.props['children'] = 'children'
+    },
     watch: {
       tree(val) {
         this.icon = val ? 'el-icon-caret-top' : 'el-icon-caret-bottom'
@@ -60,19 +63,13 @@
       }
     },
     methods: {
-      search(val) {
-        const data = this.data
-        this.data_ = val === '' ? this.data : []
-        if (val !== '') this.searchLabel(data)
-      },
       searchLabel(data) {
         const rex = new RegExp(`${this.model_}`, 'g')
         data.forEach(el => {
           if (el[this.props.label].search(rex) !== -1) {
             this.data_.push(el)
-            // this.data_ = Array.from(new Set([...this.data_, el]))
           }
-          if (el.children) {
+          if (el[this.props.children]) {
             this.searchLabel(el[this.props.children])
           }
         })
@@ -82,8 +79,13 @@
         this.tree = true
         this.top = `${this.$refs.input.$el.offsetHeight + 25}px`
       },
-      click() {
+      click(data, node, vue) {
         this.$refs.input.$el.children[0].focus()
+        if (data[this.props.children]) {
+          return
+        } else {
+          this.choose(data)
+        }
       },
       closeTree() {
         if (!this.inThis) {
@@ -105,15 +107,6 @@
         this.model_ = data[this.props.label]
         this.tree = false
         this.$emit('input', this.model_)
-      },
-      renderContent(h, { node, data, store }) {
-        return (
-          <span class='custom-tree-node'>
-            <span>{node.label}</span>
-            <span>
-              <el-button size='mini' type='text' on-click={ () => this.choose(data) }>确定</el-button>
-            </span>
-          </span>)
       }
     }
   }
