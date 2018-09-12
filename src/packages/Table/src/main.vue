@@ -101,7 +101,7 @@
             </el-table-column>
             <!-- 操作 -->
             <el-table-column
-              v-if="table.console"
+              v-if="consoleShow"
               :fixed="table.console.fixed || 'right'"
               :label="table.console.label || '操作'"
               :width="table.console.width"
@@ -211,6 +211,7 @@ export default {
   },
   data() {
     return {
+      consoleShow: false,
       data_: this.table.data ? this.table.data : [],
       fileName: '',
       arr: [],
@@ -423,6 +424,9 @@ export default {
     }
   },
   mounted() {
+    if (this.table.console) {
+      if (this.table.console.show) this.consoleShow = true
+    }
     this.pagination.currentPage === undefined ? this.pagination.currentPage = 1 : this.pagination.currentPage
     time = setInterval(_ => {
       if (this.pageData.length === 0 && this.pagination.show) {
