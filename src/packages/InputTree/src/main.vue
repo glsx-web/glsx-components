@@ -64,9 +64,10 @@
     },
     methods: {
       searchLabel(data) {
-        const rex = new RegExp(`${this.model_}`, 'g')
+        // const rex = new RegExp(`${this.model_}`, 'g')
         data.forEach(el => {
-          if (el[this.props.label].search(rex) !== -1) {
+          // if (el[this.props.label].search(rex) !== -1) {
+          if (el[this.props.label].indexOf(this.model_) !== -1) {
             this.data_.push(el)
           }
           if (el[this.props.children]) {
