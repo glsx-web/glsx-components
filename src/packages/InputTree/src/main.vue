@@ -10,7 +10,7 @@
     ></el-input>
     <div class="treebox" v-if="tree" :style="{top:top}">
       <div class="arrow"></div>
-      <div class="tree" >
+      <div class="tree" :style="treeStyle">
         <el-tree 
         :data='data_'
         :props='props'
@@ -45,6 +45,14 @@
           return {
             label: 'label',
             children: 'children'
+          }
+        }
+      },
+      treeStyle: {
+        type: Object,
+        default: () => {
+          return {
+            maxHeight: '300px'
           }
         }
       }
@@ -91,10 +99,11 @@
       closeTree() {
         if (!this.inThis) {
           if (this.model_ !== '') {
-            const rex = new RegExp(`${this.model_}`, 'g')
+            // const rex = new RegExp(`${this.model_}`, 'g')
             this.data_.forEach(el => {
               if (this.model_ !== el[this.props.label]) {
-                if (rex.test(el[this.props.label])) {
+                // if (rex.test(el[this.props.label])) {
+                if (this.model_ !== el[this.props.label]) {
                   this.model_ = el[this.props.label]
                   this.$emit('input', this.model_)
                 }
@@ -129,7 +138,6 @@
     box-sizing: border-box;
   }
   .tree{
-     max-height: 300px;
     overflow-y: scroll;
   }
   .tree::-webkit-scrollbar {

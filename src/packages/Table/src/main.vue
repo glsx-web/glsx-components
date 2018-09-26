@@ -119,9 +119,10 @@
                   :icon='i.icon'
                   @click.native.prevent="i.callback(scope.$index, pagination.show ? pageData : table.data)"
                   >
-                    <template v-if="i.label">
-                      {{i.label}}
+                    <template v-if="i.formatter">
+                      {{i.formatter( scope.row, scope.column, scope.$index)}}
                     </template>
+                    <template v-else>{{i.label}}</template>
                   </el-button>
               </template>
             </el-table-column>

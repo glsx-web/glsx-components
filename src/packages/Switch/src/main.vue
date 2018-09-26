@@ -58,12 +58,10 @@
           default: false
         },
         activeColor: {
-          type: String,
-          default: '#409EFF'
+          type: String
         },
         inactiveColor: {
-          type: String,
-          default: '#C0CCDA'
+          type: String
         },
         name: {
           type: String
