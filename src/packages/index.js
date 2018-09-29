@@ -41,6 +41,7 @@ import Row from './Row'
 import Select from './Select'
 import Slider from './Slider'
 import Switch from './Switch'
+import Scroll from './Scroll'
 import Steps from './Steps'
 import Step from './Step'
 import Table from './Table'
@@ -104,6 +105,7 @@ export {
   Row,
   Select,
   Slider,
+  Scroll,
   Switch,
   Steps,
   Step,
