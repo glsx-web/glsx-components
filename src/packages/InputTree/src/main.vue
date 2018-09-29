@@ -85,7 +85,7 @@
       openTree(val) {
         if (this.data_.length === 0) this.data_ = this.data
         this.tree = true
-        this.top = `${this.$refs.input.$el.offsetHeight + 25}px`
+        this.top = `${this.$refs.input.$el.offsetHeight + 10}px`
       },
       click(data, node, vue) {
         this.$refs.input.$el.children[0].focus()
@@ -149,22 +149,22 @@
   .arrow{
     position: absolute;
     left: 50%;
-    top: -42px;
-    border-top: 21px solid transparent;
-    border-right: 21px solid transparent;
-    border-left: 21px solid transparent;
-    border-bottom: 21px solid #e5e5e5;
+    top: -13px;
+    border-top: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-left: 6px solid transparent;
+    border-bottom: 6px solid #e5e5e5;
     transform: translateX(-50%);
   }
   .arrow::after{
     content: '';
     position: absolute;
     left: 50%;
-    top: -18px;
-    border-top: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-left: 20px solid transparent;
-    border-bottom: 20px solid #fff;
+    top: -3px;
+    border-top: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-left: 5px solid transparent;
+    border-bottom: 5px solid #fff;
     transform: translateX(-50%);
   }
 </style>
