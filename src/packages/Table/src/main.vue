@@ -1,9 +1,9 @@
-<template>
+  <template>
   <div class="tableBox" :style="table.style,{width:'100%'}" >
     <div>
       <el-table
         ref="table"
-        :data="pagination.show ? pageData : data_"
+        :data="pagination.show ? pageData : _data_ = table.data"
         :stripe='table.stripe'
         :border='table.border'
         :height='table.height'
@@ -195,12 +195,7 @@ const outputXlsxFile = (data, wscols, xlsxName) => {
 export default {
   name: 'GlTable',
   props: {
-    table: {
-      type: Object,
-      default: _ => {
-        return {}
-      }
-    },
+    table: Object,
     pagination: {
       type: Object,
       default: () => {
@@ -213,7 +208,7 @@ export default {
   data() {
     return {
       consoleShow: false,
-      data_: this.table.data ? this.table.data : [],
+      _data_: [],
       fileName: '',
       arr: [],
       select_items: [],
@@ -422,18 +417,19 @@ export default {
         this.tableData = this.table.data
       }
       this.setData(this.tableData)
+    },
+    upData() {
+      this.$set(this.$data, '_data_', this.table.data)
+      if (this._data_ !== undefined) clearInterval(time)
     }
   },
   mounted() {
+    time = setInterval(() => this.upData(), 1000)
     if (this.table.console) {
       if (this.table.console.show) this.consoleShow = true
     }
     this.pagination.currentPage === undefined ? this.pagination.currentPage = 1 : this.pagination.currentPage
-    time = setInterval(_ => {
-      if (this.pageData.length === 0 && this.pagination.show) {
-        this.getTableData()
-      }
-    }, 1000)
+    this.getTableData()
   }
 }
 </script>

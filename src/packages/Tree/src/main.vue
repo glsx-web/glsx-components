@@ -105,10 +105,7 @@
           type: Boolean,
           default: false
         },
-        checkStrictly: {
-          type: Boolean,
-          default: false
-        },
+        checkStrictly: Boolean,
         defaultCheckedKeys: {
           type: Array,
           default: _ => []

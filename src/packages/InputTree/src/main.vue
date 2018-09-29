@@ -1,10 +1,11 @@
 <template>
-  <div class='inputTree' @mouseover="inThis = true" @mouseout="inThis = false" @click="openTree">
+  <div class='inputTree' @mouseover="inThis = true" @mouseout="inThis = false" @click="openTree" ref='inputTree'>
     <el-input
       v-model="model_"
       placeholder="请选择"
       :suffix-icon="icon"
       @blur="closeTree"
+      clearable
       class="input"
       ref="input"
     ></el-input>
@@ -26,7 +27,7 @@
 <script type='text/ecmascript-6'>
   export default {
     name: 'GlInputTree',
-    data() {
+    data () {
       return {
         model_: this.value,
         tree: false,
@@ -58,52 +59,48 @@
       }
     },
     mounted() {
-      if (this.props['children'] === undefined) this.props['children'] = 'children'
+      if(this.props['children'] === undefined) this.props['children'] = 'children'
     },
-    watch: {
+    watch:{
       tree(val) {
         this.icon = val ? 'el-icon-caret-top' : 'el-icon-caret-bottom'
       },
       model_(val) {
-        const data = this.data
+        let data = this.data
         this.data_ = val === '' ? this.data : []
-        if (val !== '') this.searchLabel(data)
+        if(val !== '') this.searchLabel(data)
       }
     },
     methods: {
       searchLabel(data) {
-        // const rex = new RegExp(`${this.model_}`, 'g')
-        data.forEach(el => {
-          // if (el[this.props.label].search(rex) !== -1) {
-          if (el[this.props.label].indexOf(this.model_) !== -1) {
+        data.forEach(el => {  
+          if(el[this.props.label].indexOf(this.model_) !== -1) {
             this.data_.push(el)
           }
-          if (el[this.props.children]) {
+          if(el[this.props.children]) {
             this.searchLabel(el[this.props.children])
           }
         })
       },
       openTree(val) {
-        if (this.data_.length === 0) this.data_ = this.data
+        if(this.data_.length === 0) this.data_ = this.data
         this.tree = true
         this.top = `${this.$refs.input.$el.offsetHeight + 25}px`
       },
       click(data, node, vue) {
         this.$refs.input.$el.children[0].focus()
-        if (data[this.props.children]) {
+        if(data[this.props.children]) {
           return
-        } else {
+        } else{
           this.choose(data)
         }
       },
       closeTree() {
-        if (!this.inThis) {
-          if (this.model_ !== '') {
-            // const rex = new RegExp(`${this.model_}`, 'g')
+        if(!this.inThis) {
+          if(this.model_ !== ''){
             this.data_.forEach(el => {
-              if (this.model_ !== el[this.props.label]) {
-                // if (rex.test(el[this.props.label])) {
-                if (this.model_ !== el[this.props.label]) {
+              if(this.model_ !== el[this.props.label]) {
+                if(el[this.props.label].indexOf(this.model_)){
                   this.model_ = el[this.props.label]
                   this.$emit('input', this.model_)
                 }
@@ -111,12 +108,12 @@
             })
           }
           this.tree = false
-        }
+        } 
       },
       choose(data) {
         this.model_ = data[this.props.label]
-        this.tree = false
-        this.$emit('input', this.model_)
+        this.tree = false   
+        this.$emit("input", this.model_)
       }
     }
   }

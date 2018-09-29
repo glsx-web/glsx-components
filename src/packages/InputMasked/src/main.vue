@@ -1,5 +1,5 @@
 <template>
-  <div class="masked-box" ref="maskedBox">
+  <div class="masked-box" ref="maskedBox" :class="inputSize">
      <!-- 前置内容 -->
     <span class="prepend" v-if="$slots.prepend"><slot name='prepend'></slot></span>
     <masked-input
@@ -32,7 +32,7 @@
           class="el-input__icon el-icon-circle-close el-input__clear clear"
           @click="clear"
         ></i>
-      </span>
+    </span>
     <!-- 后置内容 -->
     <span class="append" v-if="$slots.append"><slot name='append'></slot></span>
   </div>
@@ -40,20 +40,25 @@
 
 <script type='text/ecmascript-6'>
 import emailMask from 'text-mask-addons/dist/emailMask'
+// import createNumberMask from 'text-mask-addons/dist/createNumberMask'
 import MaskedInput from 'vue-text-mask'
 export default {
   name: 'GlMasked',
   components: {
     MaskedInput
   },
+  inject: {
+    glForm: {
+      default: ''
+    },
+    glFormItem: {
+      default: ''
+    }
+  },
   data() {
     return {
       mask_: this.email ? emailMask : this.mask,
-      model_: this.value,
-      prefix: true,
-      suffix: true,
-      prepend: true,
-      append: true
+      model_: this.value
     }
   },
   props: {
@@ -103,33 +108,25 @@ export default {
   computed: {
     showClear() {
       return this.clearable && this.model_ !== ''
+    },
+    inputSize() {
+      return this.size || this.glForm.size || this.glFormItem.size
     }
   },
   mounted() {
-    switch (this.size) {
-      case 'mini':
-        this.$refs.maskedBox.classList.add('mini')
-        break
-      case 'medium':
-        this.$refs.maskedBox.classList.add('medium')
-        break
-      case 'small':
-        this.$refs.maskedBox.classList.add('small')
-        break
-    }
-    if (this.prepend) {
+    if (this.$slots.prepend) {
       this.$refs.maskedBox.classList.add('group')
       this.$refs.maskedBox.classList.add('group-prepend')
     }
-    if (this.append) {
+    if (this.$slots.append) {
       this.$refs.maskedBox.classList.add('group')
       this.$refs.maskedBox.classList.add('group-append')
     }
-    if (this.prefix) {
+    if (this.prefixIcon || this.$slots.prefix) {
       this.$refs.maskedBox.classList.add('group')
       this.$refs.maskedBox.classList.add('group-prefix')
     }
-    if (this.suffix) {
+    if (this.suffixIcon || this.$slots.suffix) {
       this.$refs.maskedBox.classList.add('group')
       this.$refs.maskedBox.classList.add('group-suffix')
     }
