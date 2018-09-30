@@ -1,6 +1,9 @@
 <template>
   <div>
     <div class="masked-box" ref="maskedBox" :class="inputSize" v-if="!ip">
+      <i ref="clear" v-show="showClear" class="el-input__icon el-icon-circle-close el-input__clear clear"
+         @click="clear"
+        ></i>
       <!-- 前置内容 -->
       <span class="prepend" v-if="$slots.prepend"><slot name='prepend'></slot></span>
       <masked-input
@@ -21,7 +24,7 @@
         </i>
       </span>
       <!-- 尾部内容 -->
-      <span class="suffix" v-if="$slots.suffix || suffixIcon || showClear">
+      <span class="suffix" v-if="$slots.suffix || suffixIcon">
           <template v-if="!showClear">
             <slot name='suffix'></slot>
             <i class="el-input__icon"
@@ -29,15 +32,14 @@
               :class="suffixIcon">
             </i>
           </template>
-          <i v-else
-            class="el-input__icon el-icon-circle-close el-input__clear clear"
-            @click="clear"
-          ></i>
         </span>
       <!-- 后置内容 -->
-      <span class="append" v-if="$slots.append"><slot name='append'></slot></span>
+      <span class="append" ref='append' v-show="$slots.append"><slot name='append'></slot></span>
     </div>
-    <div ref="ipBox" v-else :class="inputSize">
+    <div class="ip-box" ref="ipBox" v-else :class="inputSize">
+      <i ref="clear" v-show="showClear" class="el-input__icon el-icon-circle-close el-input__clear clear"
+         @click="clear"
+        ></i>
       <span class="prepend" v-if="$slots.prepend"><slot name='prepend'></slot></span>
       <vue-ip-input ref='ip' :ip="value" :on-change="onIpChange" :on-blur="onIpBlur" class="masked"></vue-ip-input>
       <span class="prefix" v-if="$slots.prefix || prefixIcon">
@@ -55,12 +57,8 @@
               :class="suffixIcon">
             </i>
           </template>
-          <i v-else
-            class="el-input__icon el-icon-circle-close el-input__clear clear"
-            @click="clear"
-          ></i>
         </span>
-      <span class="append" v-if="$slots.append"><slot name='append'></slot></span>
+      <span class="append" v-show="$slots.append" ref='append'><slot name='append'></slot></span>
     </div>
   </div>
 </template>
@@ -70,6 +68,13 @@ import emailMask from 'text-mask-addons/dist/emailMask'
 // import createNumberMask from 'text-mask-addons/dist/createNumberMask'
 import MaskedInput from 'vue-text-mask'
 import VueIpInput from 'vue-ip-input'
+const clearStyle = {
+  'boxSizing': 'border-box',
+  'verticalAlign': 'top',
+  'flex': 1,
+  'textAlign': 'center',
+  'height': '100%'
+}
 export default {
   name: 'GlMasked',
   components: {
@@ -116,11 +121,20 @@ export default {
     },
     value(val) {
       this.model_ = val
+    },
+    showClear(val) {
+      if (this.$slots.append && val) this.$refs.clear.style.right = `${this.$refs.append.offsetWidth + 5}px`
     }
   },
   methods: {
     clear() {
-      this.model_ = ''
+      if (!this.ip) {
+        this.model_ = null
+      } else {
+        for (let index = 0; index < 4; index++) {
+          this.$set(this.$refs.ip._data.segments, index, null)
+        }
+      }
     },
     onIpChange(ip) {
       this.model_ = ip
@@ -142,7 +156,7 @@ export default {
   },
   computed: {
     showClear() {
-      return this.clearable && this.model_ !== ''
+      return this.clearable && this.model_ !== '' && this.model_ !== null
     },
     inputSize() {
       return this.size || this.glForm.size || this.glFormItem.size
@@ -150,13 +164,6 @@ export default {
   },
   mounted() {
     if (this.ip) {
-      const clearStyle = {
-        'boxSizing': 'border-box',
-        'verticalAlign': 'top',
-        'flex': 1,
-        'textAlign': 'center',
-        'height': '100%'
-      }
       for (let i = 0; i < 4; i++) {
         for (const key in clearStyle) {
           this.$refs.ip.$el.childNodes[i].style[key] = clearStyle[key]
@@ -177,6 +184,7 @@ export default {
       }
     }
     if (this.$slots.append) {
+      this.$refs.clear.style.right = `${this.$refs.append.offsetWidth + 46}px`
       if (!this.ip) {
         this.$refs.maskedBox.classList.add('group')
         this.$refs.maskedBox.classList.add('group-append')
@@ -208,7 +216,7 @@ export default {
 </script>
 
 <style scoped>
-  .masked-box{
+  .masked-box,.ip-box{
     position: relative;
     font-size: 14px;
   }
@@ -280,7 +288,7 @@ export default {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }
-  .group .prefix,.group .suffix,.clear{
+  .group .prefix,.group .suffix{
     position: absolute;
     top: 0;
     transition: all .3s;
@@ -297,7 +305,7 @@ export default {
   .group-suffix .masked{
     padding-right: 30px;
   }
-  .group-suffix .suffix,.clear{
+  .group-suffix .suffix{
     right: 5px;
   }
   .medium .masked,medium .el-input__icon{
@@ -315,9 +323,6 @@ export default {
     line-height: 28px;
     font-size: 12px;  
   }
-  .masked-box .clear{
-    cursor: pointer;
-  }
   .group .ip-input-container{
     display: flex;
   }
@@ -333,5 +338,14 @@ export default {
   .err{
     border-color: #f56c6c;
     outline: 0;
+  }
+  .clear{
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 9;
+    color: #909399;
+    cursor: pointer;
   }
 </style>
