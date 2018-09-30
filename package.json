@@ -20,7 +20,8 @@
     "vue-text-mask": "^6.1.2",
     "text-mask-addons": "^3.8.0",
     "xlsx": "^0.13.3",
-    "vue": "2.5.10"
+    "vue": "2.5.10",
+    "vue-ip-input": "^2.0.2"
   },
   "devDependencies": {
     "autoprefixer": "7.2.3",
