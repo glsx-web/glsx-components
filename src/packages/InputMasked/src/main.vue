@@ -1,40 +1,67 @@
 <template>
-  <div class="masked-box" ref="maskedBox" :class="inputSize">
-     <!-- 前置内容 -->
-    <span class="prepend" v-if="$slots.prepend"><slot name='prepend'></slot></span>
-    <masked-input
-      class="masked"
-      v-model="model_" 
-      :mask='mask_'
-      :placeholder="placeholder"
-      :placeholderChar='placeholderChar'
-      :keepCharPositions='keepCharPositions'
-      :guide="guide"
-    />
-    <!-- 头部内容 -->
-    <span class="prefix" v-if="$slots.prefix || prefixIcon">
-      <slot name='prefix'></slot>
-      <i class="el-input__icon"
-           v-if="prefixIcon"
-           :class="prefixIcon">
-      </i>
-    </span>
-    <!-- 尾部内容 -->
-    <span class="suffix" v-if="$slots.suffix || suffixIcon || showClear">
-        <template v-if="!showClear">
-          <slot name='suffix'></slot>
-          <i class="el-input__icon"
-            v-if="suffixIcon"
-            :class="suffixIcon">
-          </i>
-        </template>
-        <i v-else
-          class="el-input__icon el-icon-circle-close el-input__clear clear"
-          @click="clear"
-        ></i>
-    </span>
-    <!-- 后置内容 -->
-    <span class="append" v-if="$slots.append"><slot name='append'></slot></span>
+  <div>
+    <div class="masked-box" ref="maskedBox" :class="inputSize" v-if="!ip">
+      <!-- 前置内容 -->
+      <span class="prepend" v-if="$slots.prepend"><slot name='prepend'></slot></span>
+      <masked-input
+        class="masked"
+        v-model="model_" 
+        :mask='mask_'
+        :placeholder="placeholder"
+        :placeholderChar='placeholderChar'
+        :keepCharPositions='keepCharPositions'
+        :guide="guide"
+      />
+      <!-- 头部内容 -->
+      <span class="prefix" v-if="$slots.prefix || prefixIcon">
+        <slot name='prefix'></slot>
+        <i class="el-input__icon"
+            v-if="prefixIcon"
+            :class="prefixIcon">
+        </i>
+      </span>
+      <!-- 尾部内容 -->
+      <span class="suffix" v-if="$slots.suffix || suffixIcon || showClear">
+          <template v-if="!showClear">
+            <slot name='suffix'></slot>
+            <i class="el-input__icon"
+              v-if="suffixIcon"
+              :class="suffixIcon">
+            </i>
+          </template>
+          <i v-else
+            class="el-input__icon el-icon-circle-close el-input__clear clear"
+            @click="clear"
+          ></i>
+        </span>
+      <!-- 后置内容 -->
+      <span class="append" v-if="$slots.append"><slot name='append'></slot></span>
+    </div>
+    <div ref="ipBox" v-else :class="inputSize">
+      <span class="prepend" v-if="$slots.prepend"><slot name='prepend'></slot></span>
+      <vue-ip-input ref='ip' :ip="value" :on-change="onIpChange" :on-blur="onIpBlur" class="masked"></vue-ip-input>
+      <span class="prefix" v-if="$slots.prefix || prefixIcon">
+        <slot name='prefix'></slot>
+        <i class="el-input__icon"
+            v-if="prefixIcon"
+            :class="prefixIcon">
+        </i>
+      </span>
+      <span class="suffix" v-if="$slots.suffix || suffixIcon || showClear">
+          <template v-if="!showClear">
+            <slot name='suffix'></slot>
+            <i class="el-input__icon"
+              v-if="suffixIcon"
+              :class="suffixIcon">
+            </i>
+          </template>
+          <i v-else
+            class="el-input__icon el-icon-circle-close el-input__clear clear"
+            @click="clear"
+          ></i>
+        </span>
+      <span class="append" v-if="$slots.append"><slot name='append'></slot></span>
+    </div>
   </div>
 </template>
 
@@ -42,10 +69,12 @@
 import emailMask from 'text-mask-addons/dist/emailMask'
 // import createNumberMask from 'text-mask-addons/dist/createNumberMask'
 import MaskedInput from 'vue-text-mask'
+import VueIpInput from 'vue-ip-input'
 export default {
   name: 'GlMasked',
   components: {
-    MaskedInput
+    MaskedInput,
+    VueIpInput
   },
   inject: {
     glForm: {
@@ -62,27 +91,16 @@ export default {
     }
   },
   props: {
-    keepCharPositions: {
+    ip: {
       type: Boolean,
       default: false
     },
-    guide: {
-      type: Boolean,
-      default: false
-    },
-    email: {
-      type: Boolean
-    },
-    value: {
-      type: null
-    },
-    clearable: {
-      type: Boolean,
-      default: false
-    },
-    mask: {
-      type: null
-    },
+    keepCharPositions: Boolean,
+    guide: Boolean,
+    email: Boolean,
+    value: null,
+    clearable: Boolean,
+    mask: null,
     placeholder: String,
     placeholderChar: {
       type: String,
@@ -103,6 +121,23 @@ export default {
   methods: {
     clear() {
       this.model_ = ''
+    },
+    onIpChange(ip) {
+      this.model_ = ip
+      this.$emit('input', ip)
+    },
+    onIpBlur(ip) {
+      this.model_ = ip
+      this.$emit('input', ip)
+      this.$refs.ip.$el.classList.remove('active')
+    },
+    valid(val) {
+      if (val.target.value === '') {
+        this.$refs.ip.$el.classList.add('err')
+      } else {
+        this.$refs.ip.$el.classList.add('active')
+        this.$refs.ip.$el.classList.remove('err')
+      }
     }
   },
   computed: {
@@ -114,21 +149,59 @@ export default {
     }
   },
   mounted() {
+    if (this.ip) {
+      const clearStyle = {
+        'boxSizing': 'border-box',
+        'verticalAlign': 'top',
+        'flex': 1,
+        'textAlign': 'center',
+        'height': '100%'
+      }
+      for (let i = 0; i < 4; i++) {
+        for (const key in clearStyle) {
+          this.$refs.ip.$el.childNodes[i].style[key] = clearStyle[key]
+        }
+        this.$refs.ip.$el.childNodes[i].childNodes[0].style.height = clearStyle.height
+        this.$refs.ip.$el.childNodes[i].childNodes[0].style.width = '90%'
+        this.$refs.ip.$el.childNodes[i].childNodes[0].onfocus = val => this.valid(val)
+        this.$refs.ip.$el.childNodes[i].childNodes[0].onkeyup = val => this.valid(val)
+      }
+    }
     if (this.$slots.prepend) {
-      this.$refs.maskedBox.classList.add('group')
-      this.$refs.maskedBox.classList.add('group-prepend')
+      if (!this.ip) {
+        this.$refs.maskedBox.classList.add('group')
+        this.$refs.maskedBox.classList.add('group-prepend')
+      } else {
+        this.$refs.ipBox.classList.add('group')
+        this.$refs.ipBox.classList.add('group-prepend')
+      }
     }
     if (this.$slots.append) {
-      this.$refs.maskedBox.classList.add('group')
-      this.$refs.maskedBox.classList.add('group-append')
+      if (!this.ip) {
+        this.$refs.maskedBox.classList.add('group')
+        this.$refs.maskedBox.classList.add('group-append')
+      } else {
+        this.$refs.ipBox.classList.add('group')
+        this.$refs.ipBox.classList.add('group-append')
+      }
     }
     if (this.prefixIcon || this.$slots.prefix) {
-      this.$refs.maskedBox.classList.add('group')
-      this.$refs.maskedBox.classList.add('group-prefix')
+      if (!this.ip) {
+        this.$refs.maskedBox.classList.add('group')
+        this.$refs.maskedBox.classList.add('group-prefix')
+      } else {
+        this.$refs.ipBox.classList.add('group')
+        this.$refs.ipBox.classList.add('group-prefix')
+      }
     }
     if (this.suffixIcon || this.$slots.suffix) {
-      this.$refs.maskedBox.classList.add('group')
-      this.$refs.maskedBox.classList.add('group-suffix')
+      if (!this.ip) {
+        this.$refs.maskedBox.classList.add('group')
+        this.$refs.maskedBox.classList.add('group-suffix')
+      } else {
+        this.$refs.ipBox.classList.add('group')
+        this.$refs.ipBox.classList.add('group-suffix')
+      }
     }
   }
 }
@@ -240,9 +313,25 @@ export default {
   .mini .masked,.mini .el-input__icon{
     height: 28px;
     line-height: 28px;
-    font-size: 12px;
+    font-size: 12px;  
   }
   .masked-box .clear{
     cursor: pointer;
+  }
+  .group .ip-input-container{
+    display: flex;
+  }
+  .ip-input-container{
+    width: 100%;
+    font-size: 0;
+    display: flex;
+  }
+  .active{
+    border-color: #409eff;
+    outline: 0;
+  }
+  .err{
+    border-color: #f56c6c;
+    outline: 0;
   }
 </style>
