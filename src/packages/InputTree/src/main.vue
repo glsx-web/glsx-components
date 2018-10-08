@@ -2,12 +2,13 @@
   <div class='inputTree' @mouseover="inThis = true" @mouseout="inThis = false" @click="openTree" ref='inputTree'>
     <el-input
       v-model="model_"
-      placeholder="请选择"
+      :placeholder="placeholder"
       :suffix-icon="icon"
       @blur="closeTree"
       clearable
       class="input"
       ref="input"
+      :size='inputSize'
     ></el-input>
     <div class="treebox" v-if="tree" :style="{top:top}">
       <div class="arrow"></div>
@@ -27,6 +28,14 @@
 <script type='text/ecmascript-6'>
   export default {
     name: 'GlInputTree',
+    inject: {
+      glForm: {
+        default: ''
+      },
+      glFormItem: {
+        default: ''
+      }
+    },
     data() {
       return {
         model_: this.value,
@@ -39,7 +48,12 @@
     },
     props: {
       data: Array,
-      value: null,
+      value: String,
+      size: String,
+      placeholder: {
+        type: String,
+        default: '请选择'
+      },
       props: {
         type: Object,
         default: () => {
@@ -58,12 +72,20 @@
         }
       }
     },
+    computed: {
+      inputSize() {
+        return this.size || this.glForm.size || this.glFormItem.size
+      }
+    },
     mounted() {
       if (this.props['children'] === undefined) this.props['children'] = 'children'
     },
     watch: {
       tree(val) {
         this.icon = val ? 'el-icon-caret-top' : 'el-icon-caret-bottom'
+      },
+      value(val) {
+        this.model_ = val
       },
       model_(val) {
         const data = this.data
@@ -97,16 +119,17 @@
       },
       closeTree() {
         if (!this.inThis) {
-          if (this.model_ !== '') {
+          if (this.model_ !== '' && this.data_.length > 0) {
             this.data_.forEach(el => {
               if (this.model_ !== el[this.props.label]) {
                 if (el[this.props.label].indexOf(this.model_)) {
-                  this.model_ = el[this.props.label]
+                  this.model_ = this.data_[0][this.props.label]
                   this.$emit('input', this.model_)
                 }
               }
             })
           }
+          if (this.data_.length === 0) this.model_ = ''
           this.tree = false
         }
       },
