@@ -110,6 +110,7 @@
         this.top = `${this.$refs.input.$el.offsetHeight + 10}px`
       },
       click(data, node, vue) {
+        this.$emit('node-click', data, node, vue, this.props)
         this.$refs.input.$el.children[0].focus()
         if (data[this.props.children]) {
           return
