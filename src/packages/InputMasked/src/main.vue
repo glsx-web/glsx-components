@@ -53,8 +53,8 @@
           v-model="item.value"
           maxlength="3" 
           @input="valid(item.value, index, $event)"
-          @focus="ipFocus"
-          @blur="ipBlur"
+          @focus="ipFocus(item.value, index, $event)"
+          @blur="ipBlur(item.value, index, $event)"
           @keydown="keyBack(item.value, index, $event)"
           />
         </div>   
@@ -151,9 +151,15 @@ export default {
     },
     value(val) {
       if (this.ip) {
-        const _ip_ = this.value.split('.')
-        for (let index = 0; index < 4; index++) {
-          this.$set(this.ip_item[index], 'value', _ip_[index])
+        if (this.value !== '') {
+          const _ip_ = this.value.split('.')
+          for (let index = 0; index < 4; index++) {
+            this.$set(this.ip_item[index], 'value', _ip_[index])
+          }
+        } else {
+          for (let index = 0; index < 4; index++) {
+            this.$set(this.ip_item[index], 'value', '')
+          }
         }
       } else {
         this.model_ = val
@@ -165,13 +171,15 @@ export default {
   },
   methods: {
     valid(val, index, $event) {
-      if (!reg.test(val)) this.ip_item[index].value = ''
-      if (val > 255) this.ip_item[index].value = 255
-      if (val.length === 3) {
+      if (val.split('')[0] === '0' && val.length === 3) {
         if (index !== 3) {
           this.$refs.ip[index + 1].focus()
         }
       }
+      if (val.length === 3) if (index !== 3) this.$refs.ip[index + 1].focus()
+      if (index === 3 && val.length === 3) this.$refs.ip[index].blur()
+      if (!reg.test(val)) this.ip_item[index].value = ''
+      if (val > 255) this.ip_item[index].value = 255
       this.check($event)
       this.changeValue()
     },
@@ -211,22 +219,32 @@ export default {
       this.$emit('input', '')
       this.$emit('change', '')
     },
-    ipBlur(val) {
+    ipBlur(val, index, $event) {
+      if (val.split('')[0] === '0' && val.length > 1) {
+        this.ip_item[index].value = val.length === 2 ? val.split('')[1] : val.split('')[1] + val.split('')[2]
+        if (val.split('')[1] === '0') this.ip_item[index].value = val.split('')[2]
+      }
       this.focused = false
       this.changeValue()
       this.$refs.ipItem.classList.remove('err')
       this.$refs.ipItem.classList.remove('active')
     },
-    ipFocus(val) {
+    ipFocus(val, index, $event) {
       this.focused = true
-      this.check(val)
+      this.check($event)
     }
   },
   mounted() {
     if (this.ip) {
-      const _ip_ = this.value.split('.')
-      for (let index = 0; index < 4; index++) {
-        this.$set(this.ip_item[index], 'value', _ip_[index])
+      if (this.value !== '') {
+        const _ip_ = this.value.split('.')
+        for (let index = 0; index < 4; index++) {
+          this.$set(this.ip_item[index], 'value', _ip_[index])
+        }
+      } else {
+        for (let index = 0; index < 4; index++) {
+          this.$set(this.ip_item[index], 'value', '')
+        }
       }
     }
     if (this.$slots.prepend) {
