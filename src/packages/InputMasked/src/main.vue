@@ -41,7 +41,23 @@
          @click="clear"
         ></i>
       <span class="prepend" v-if="$slots.prepend"><slot name='prepend'></slot></span>
-      <vue-ip-input ref='ip' :ip="value" :on-change="onIpChange" :on-blur="onIpBlur" class="masked"></vue-ip-input>
+      <div class="ip-input-container masked" ref='ipItem' >
+        <div class="ip-item"
+           v-for="(item, index) in ip_item" 
+          :key="index"
+        >
+          <input 
+          ref="ip" 
+          v-model="item.value"
+          maxlength="3" 
+          @input="valid(item.value, index, $event)"
+          @focus="focus"
+          @blur="blur"
+          @keydown="keyBack(item.value, index, $event)"
+          />
+        </div>   
+      </div> 
+
       <span class="prefix" v-if="$slots.prefix || prefixIcon">
         <slot name='prefix'></slot>
         <i class="el-input__icon"
@@ -67,19 +83,11 @@
 import emailMask from 'text-mask-addons/dist/emailMask'
 // import createNumberMask from 'text-mask-addons/dist/createNumberMask'
 import MaskedInput from 'vue-text-mask'
-import VueIpInput from 'vue-ip-input'
-const clearStyle = {
-  'boxSizing': 'border-box',
-  'verticalAlign': 'top',
-  'flex': 1,
-  'textAlign': 'center',
-  'height': '100%'
-}
+const reg = new RegExp(/^[0-9]*$/)
 export default {
   name: 'GlMasked',
   components: {
-    MaskedInput,
-    VueIpInput
+    MaskedInput
   },
   inject: {
     glForm: {
@@ -92,14 +100,17 @@ export default {
   data() {
     return {
       mask_: this.email ? emailMask : this.mask,
-      model_: this.value
+      model_: this.value,
+      ip_item: [
+        { value: '' },
+        { value: '' },
+        { value: '' },
+        { value: '' }
+      ]
     }
   },
   props: {
-    ip: {
-      type: Boolean,
-      default: false
-    },
+    ip: Boolean,
     keepCharPositions: Boolean,
     guide: Boolean,
     email: Boolean,
@@ -115,6 +126,21 @@ export default {
     suffixIcon: String,
     prefixIcon: String
   },
+  computed: {
+    showClear() {
+      var ip = true
+      if (this.ip) {
+        ip = false
+        this.ip_item.forEach(el => {
+          if (el.value !== null && el.value !== '') ip = true
+        })
+      }
+      return this.clearable && this.model_ !== '' && ip
+    },
+    inputSize() {
+      return this.size || this.glForm.size || this.glFormItem.size
+    }
+  },
   watch: {
     model_(val) {
       this.$emit('input', val)
@@ -127,51 +153,65 @@ export default {
     }
   },
   methods: {
+    valid(val, index, $event) {
+      if (!reg.test(val)) this.ip_item[index].value = ''
+      if (val > 255) this.ip_item[index].value = 255
+      if (val.length === 3) {
+        if (index !== 3) {
+          this.$refs.ip[index + 1].focus()
+        }
+      }
+      this.check($event)
+      this.changeValue()
+    },
+    check(obj) {
+      if (obj.target.value === '') {
+        this.$refs.ipItem.classList.add('err')
+      } else {
+        this.$refs.ipItem.classList.add('active')
+        this.$refs.ipItem.classList.remove('err')
+      }
+    },
+    keyBack(val, index, $event) {
+      if ($event.keyCode === 8) {
+        if (val.length === 0) {
+          if (index !== 0) {
+            this.$refs.ip[index - 1].focus()
+          }
+        }
+      }
+      if ($event.keyCode === 13) this.changeValue()
+    },
+    changeValue() {
+      let str = ''
+      for (let index = 0; index < this.ip_item.length; index++) {
+        index === 0 ? str += this.ip_item[index].value : str += `.${this.ip_item[index].value}`
+      }
+      this.$emit('input', str)
+    },
     clear() {
       if (!this.ip) {
-        this.model_ = null
+        this.model_ = ''
       } else {
         for (let index = 0; index < 4; index++) {
-          this.$set(this.$refs.ip._data.segments, index, null)
+          this.ip_item[index].value = ''
         }
       }
     },
-    onIpChange(ip) {
-      this.model_ = ip
-      this.$emit('input', ip)
+    blur(val) {
+      this.changeValue()
+      this.$refs.ipItem.classList.remove('err')
+      this.$refs.ipItem.classList.remove('active')
     },
-    onIpBlur(ip) {
-      this.model_ = ip
-      this.$emit('input', ip)
-      this.$refs.ip.$el.classList.remove('active')
-    },
-    valid(val) {
-      if (val.target.value === '') {
-        this.$refs.ip.$el.classList.add('err')
-      } else {
-        this.$refs.ip.$el.classList.add('active')
-        this.$refs.ip.$el.classList.remove('err')
-      }
-    }
-  },
-  computed: {
-    showClear() {
-      return this.clearable && this.model_ !== '' && this.model_ !== null
-    },
-    inputSize() {
-      return this.size || this.glForm.size || this.glFormItem.size
+    focus(val) {
+      this.check(val)
     }
   },
   mounted() {
     if (this.ip) {
-      for (let i = 0; i < 4; i++) {
-        for (const key in clearStyle) {
-          this.$refs.ip.$el.childNodes[i].style[key] = clearStyle[key]
-        }
-        this.$refs.ip.$el.childNodes[i].childNodes[0].style.height = clearStyle.height
-        this.$refs.ip.$el.childNodes[i].childNodes[0].style.width = '90%'
-        this.$refs.ip.$el.childNodes[i].childNodes[0].onfocus = val => this.valid(val)
-        this.$refs.ip.$el.childNodes[i].childNodes[0].onkeyup = val => this.valid(val)
+      const _ip_ = this.value.split('.')
+      for (let index = 0; index < 4; index++) {
+        this.$set(this.ip_item[index], 'value', _ip_[index])
       }
     }
     if (this.$slots.prepend) {
@@ -327,9 +367,11 @@ export default {
     display: flex;
   }
   .ip-input-container{
-    width: 100%;
+    /* width: 100%; */
+    vertical-align: middle;
     font-size: 0;
     display: flex;
+    box-sizing: border-box;
   }
   .active{
     border-color: #409eff;
@@ -347,5 +389,30 @@ export default {
     z-index: 9;
     color: #909399;
     cursor: pointer;
+  }
+  .ip-item{
+    flex: 1;
+    display: inline-block;
+    width: 25%;
+    box-sizing: border-box;
+    
+  }
+  .ip-item::after{
+    width: 10%;
+    display: inline-block;
+    content: '.';
+    font-size: 16px;
+  }
+  .ip-item:last-of-type::after{
+    display: none;
+  }
+  .ip-item input{
+    display: inline-block;
+    vertical-align: top;
+    height: 100%;
+    width: 90%;
+    outline: none;
+    border: none;
+    text-align: center;
   }
 </style>
