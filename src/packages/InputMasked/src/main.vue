@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="masked-box" ref="maskedBox" :class="inputSize" v-if="!ip">
+    <div class="masked-box" ref="maskedBox" :class="inputSize" v-if="!ip" @mouseover='hovering = true' @mouseout="hovering = false">
       <i ref="clear" v-show="showClear" class="el-input__icon el-icon-circle-close el-input__clear clear"
          @click="clear"
         ></i>
@@ -14,6 +14,8 @@
         :placeholderChar='placeholderChar'
         :keepCharPositions='keepCharPositions'
         :guide="guide"
+        @focus='focused = true'
+        @blur="focused = false"
       />
       <!-- 头部内容 -->
       <span class="prefix" v-if="$slots.prefix || prefixIcon">
@@ -36,7 +38,7 @@
       <!-- 后置内容 -->
       <span class="append" ref='append' v-show="$slots.append"><slot name='append'></slot></span>
     </div>
-    <div class="ip-box" ref="ipBox" v-else :class="inputSize">
+    <div class="ip-box" ref="ipBox" v-else :class="inputSize"  @mouseover='hovering = true' @mouseout="hovering = false">
       <i ref="clear" v-show="showClear" class="el-input__icon el-icon-circle-close el-input__clear clear"
          @click="clear"
         ></i>
@@ -51,8 +53,8 @@
           v-model="item.value"
           maxlength="3" 
           @input="valid(item.value, index, $event)"
-          @focus="focus"
-          @blur="blur"
+          @focus="ipFocus"
+          @blur="ipBlur"
           @keydown="keyBack(item.value, index, $event)"
           />
         </div>   
@@ -106,7 +108,9 @@ export default {
         { value: '' },
         { value: '' },
         { value: '' }
-      ]
+      ],
+      focused: false,
+      hovering: false
     }
   },
   props: {
@@ -135,7 +139,7 @@ export default {
           if (el.value !== null && el.value !== '') ip = true
         })
       }
-      return this.clearable && this.model_ !== '' && ip
+      return this.clearable && this.model_ !== '' && ip && (this.focused || this.hovering)
     },
     inputSize() {
       return this.size || this.glForm.size || this.glFormItem.size
@@ -146,7 +150,14 @@ export default {
       this.$emit('input', val)
     },
     value(val) {
-      this.model_ = val
+      if (this.ip) {
+        const _ip_ = this.value.split('.')
+        for (let index = 0; index < 4; index++) {
+          this.$set(this.ip_item[index], 'value', _ip_[index])
+        }
+      } else {
+        this.model_ = val
+      }
     },
     showClear(val) {
       if (this.$slots.append && val) this.$refs.clear.style.right = `${this.$refs.append.offsetWidth + 5}px`
@@ -197,13 +208,17 @@ export default {
           this.ip_item[index].value = ''
         }
       }
+      this.$emit('input', '')
+      this.$emit('change', '')
     },
-    blur(val) {
+    ipBlur(val) {
+      this.focused = false
       this.changeValue()
       this.$refs.ipItem.classList.remove('err')
       this.$refs.ipItem.classList.remove('active')
     },
-    focus(val) {
+    ipFocus(val) {
+      this.focused = true
       this.check(val)
     }
   },
@@ -387,7 +402,7 @@ export default {
     top: 50%;
     transform: translateY(-50%);
     z-index: 9;
-    color: #909399;
+    color: #C4C4CC;
     cursor: pointer;
   }
   .ip-item{
