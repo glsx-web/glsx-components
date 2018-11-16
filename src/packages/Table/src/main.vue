@@ -486,4 +486,7 @@ export default {
     .importBox-tips .el-icon-error{
       color: #F56C6C;
     }
+    .clearBtn [class*=el-icon-]+span{
+      margin-left: 0;
+    }
 </style>
