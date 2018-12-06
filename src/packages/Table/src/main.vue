@@ -211,14 +211,14 @@ export default {
           ? () => null
           : this.table.cellMouseEnter,
       select:
-        this.table.select === undefined ? this._select : this.table.select,
+        this.table.select === undefined ? () => null : this.table.select,
       selectAll:
         this.table.selectAll === undefined
-          ? this._selectAll
+          ? () => null
           : this.table.selectAll,
       selectionChange:
         this.table.selectionChange === undefined
-          ? this._selectionChange
+          ? () => null
           : this.table.selectionChange,
       currentChange:
         this.table.currentChange === undefined
@@ -369,6 +369,11 @@ export default {
         arr2 = []
       }
       return arr
+    }
+  },
+  mounted() {
+    if (this.table.console) {
+      if (this.table.console.show) this.consoleShow = true
     }
   }
 }
