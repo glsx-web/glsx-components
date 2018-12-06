@@ -3,7 +3,7 @@
     <div>
       <el-table
         ref="table"
-        :data="pagination.show ? pageData : data_"
+        :data="table.data"
         :stripe="table.stripe"
         :border="table.border"
         :height="table.height"
@@ -118,7 +118,7 @@
               :type="i.type"
               :size="i.size"
               :icon="i.icon"
-              @click.native.prevent="i.callback(scope.$index, pagination.show ? pageData : table.data)"
+              @click.native.prevent="i.callback(scope.$index, table.data)"
             >
               <template v-if="i.formatter">{{i.formatter( scope.row, scope.column, scope.$index)}}</template>
               <template v-else>{{i.label}}</template>
@@ -138,7 +138,7 @@
     <el-dialog title="选择导出数据" :visible.sync="centerDialogVisible" width="30%" center>
       <el-radio-group v-model="radio" style="text-align:center;display:block;">
         <el-radio label="当前页"></el-radio>
-        <el-radio label="全部" v-if="this.pagination.show"></el-radio>
+        <!-- <el-radio label="全部" v-if="this.pagination.show"></el-radio> -->
         <el-radio label="选中" v-if="this.table.selection"></el-radio>
       </el-radio-group>
       <span slot="footer" class="dialog-footer">
@@ -150,46 +150,33 @@
 </template>
 
 <script>
-import XLSX from "xlsx";
-var end;
-var time = null;
+import XLSX from 'xlsx'
 const outputXlsxFile = (data, wscols, xlsxName) => {
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  ws["!cols"] = wscols;
-  const wb = XLSX.utils.book_new();
-  console.log(wb);
-  XLSX.utils.book_append_sheet(wb, ws, xlsxName);
-  XLSX.writeFile(wb, xlsxName + ".xlsx");
-};
+  const ws = XLSX.utils.aoa_to_sheet(data)
+  ws['!cols'] = wscols
+  const wb = XLSX.utils.book_new()
+  console.log(wb)
+  XLSX.utils.book_append_sheet(wb, ws, xlsxName)
+  XLSX.writeFile(wb, xlsxName + '.xlsx')
+}
 export default {
-  name: "GlTable",
+  name: 'GlTable',
   props: {
     table: {
       type: Object,
       default: _ => {
-        return {};
-      }
-    },
-    pagination: {
-      type: Object,
-      default: () => {
-        return {
-          show: false
-        };
+        return {}
       }
     }
   },
   data() {
     return {
       consoleShow: false,
-      data_: this.table.data ? this.table.data : [],
-      fileName: "",
+      fileName: '',
       arr: [],
       select_items: [],
-      radio: "当前页",
+      radio: '当前页',
       centerDialogVisible: false,
-      tableData: [],
-      pageData: [],
       selectionItem: [],
       headerContextmenu:
         this.table.headerContextmenu === undefined
@@ -244,251 +231,147 @@ export default {
       expandChange:
         this.table.expandChange === undefined
           ? () => null
-          : this.table.expandChange,
-      pageSize:
-        this.pagination.pageSize === undefined ? 10 : this.pagination.pageSize,
-      sizeChange:
-        this.pagination.sizeChange === undefined
-          ? this._sizeChange
-          : this.pagination.sizeChange,
-      currentChange_:
-        this.pagination.currentChange === undefined
-          ? this._currentChange
-          : this.pagination.currentChange,
-      prevClick:
-        this.pagination.prevClick === undefined
-          ? _ => null
-          : this.pagination.prevClick,
-      nextClick:
-        this.pagination.nextClick === undefined
-          ? _ => null
-          : this.pagination.nextClick
-    };
+          : this.table.expandChange
+    }
   },
   computed: {
     // 展开行className
     collapseClass() {
-      return this.table.collapse.className || "gl-collapse";
+      return this.table.collapse.className || 'gl-collapse'
     }
   },
   methods: {
     // 导入
     importXlsx() {
-      const file = this.$refs.files.files[0];
+      const file = this.$refs.files.files[0]
       if (file) {
-        if (file.name.split(".")[1].toLowerCase() === "xlsx") {
-          this.table.column = [];
-          this.table.data = [];
-          const reader = new FileReader();
+        if (file.name.split('.')[1].toLowerCase() === 'xlsx') {
+          this.table.column = []
+          this.table.data = []
+          const reader = new FileReader()
           reader.onload = e => {
             const workbook = XLSX.read(e.target.result, {
-              type: "binary"
-            });
-            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-            const headers = {};
-            const data = [];
-            const keys = Object.keys(worksheet);
-            let cols = [];
-            const column = [];
-            const arr = [];
+              type: 'binary'
+            })
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]]
+            const headers = {}
+            const data = []
+            const keys = Object.keys(worksheet)
+            let cols = []
+            const column = []
+            const arr = []
             // 过滤以 ! 开头的 key
             keys
-              .filter(k => k[0] !== "!")
+              .filter(k => k[0] !== '!')
               // 遍历所有单元格
               .forEach(k => {
                 // 如 A1 中的 A
-                const col = k.substring(0, 1);
+                const col = k.substring(0, 1)
                 // 如 A1 中的 1
-                const row = parseInt(k.substring(1));
+                const row = parseInt(k.substring(1))
                 // 当前单元格的值
-                const value = worksheet[k].w;
+                const value = worksheet[k].w
                 // 保存字段名
                 if (row === 1) {
-                  headers[col] = value;
-                  return;
+                  headers[col] = value
+                  return
                 }
                 // 解析成 JSON
                 if (!data[row]) {
-                  data[row] = {};
+                  data[row] = {}
                 }
-                data[row][headers[col]] = value;
-                cols.push(col);
-                cols = Array.from(new Set([...[], ...cols]));
-              });
+                data[row][headers[col]] = value
+                cols.push(col)
+                cols = Array.from(new Set([...[], ...cols]))
+              })
             for (let index = 0; index < cols.length; index++) {
               column.push({
                 label: headers[cols[index]],
                 prop: headers[cols[index]]
-              });
+              })
             }
             for (const iterator of data) {
-              if (iterator) arr.push(iterator);
+              if (iterator) arr.push(iterator)
             }
-            this.$set(this.table, "data", arr);
-            this.$set(this.table, "column", column);
-            this.data_ = this.table.data;
-          };
-          reader.readAsBinaryString(file);
+            this.$set(this.table, 'data', arr)
+            this.$set(this.table, 'column', column)
+            this.data_ = this.table.data
+          }
+          reader.readAsBinaryString(file)
         } else {
-          this.$message.error("只能上传xlsx文件");
+          this.$message.error('只能上传xlsx文件')
         }
-        this.fileName = file.name;
+        this.fileName = file.name
       }
     },
     // 导出弹框
     openDialog() {
-      this.select_items = [];
+      this.select_items = []
       for (const iterator of this.arr) {
-        if (iterator) this.select_items = [...this.select_items, ...iterator];
+        if (iterator) this.select_items = [...this.select_items, ...iterator]
       }
-      this.centerDialogVisible = true;
+      this.centerDialogVisible = true
     },
     keyupDialog(event) {
-      if (event.key === "Enter" && this.centerDialogVisible === true)
-        this.exportTable();
+      if (event.key === 'Enter' && this.centerDialogVisible === true) { this.exportTable() }
     },
     // 导出
     exportTable() {
       const table = this.pagination.show
-        ? this.radio === "全部"
+        ? this.radio === '全部'
           ? this.tableData
-          : this.radio === "当前页"
-          ? this.pageData
-          : this.select_items
-        : this.radio === "选中"
-        ? this.selectionItem
-        : this.table.data;
-      this.$prompt("请输入文件名", {
-        confirmButtonText: "确 定 (Enter)",
-        cancelButtonText: "取 消 (Esc)",
+          : this.radio === '当前页'
+            ? this.pageData
+            : this.select_items
+        : this.radio === '选中'
+          ? this.selectionItem
+          : this.table.data
+      this.$prompt('请输入文件名', {
+        confirmButtonText: '确 定 (Enter)',
+        cancelButtonText: '取 消 (Esc)',
         inputValidator: _ => {
-          return _ !== null;
+          return _ !== null
         },
-        inputErrorMessage: "文件名不能为空！"
+        inputErrorMessage: '文件名不能为空！'
       })
         .then(({ value }) => {
-          this.centerDialogVisible = false;
+          this.centerDialogVisible = false
           // 1宽度 ≈ 20像素
           const width = this.$refs.table.$refs.bodyWrapper.children[0]
-            .children[1].children[0].cells;
-          const width_item = [];
+            .children[1].children[0].cells
+          const width_item = []
           for (let index = 0; index < this.table.column.length; index++) {
-            width_item.push({ wch: width[index].offsetWidth / 8 });
+            width_item.push({ wch: width[index].offsetWidth / 8 })
           }
           outputXlsxFile(
             this.getData(this.table.column, table),
             width_item,
             value
-          );
+          )
         })
         .catch(err => {
-          console.log(err);
-        });
+          console.log(err)
+        })
     },
     getData(list, data) {
-      const title = [];
-      const arr = [];
-      let arr2 = [];
+      const title = []
+      const arr = []
+      let arr2 = []
       for (let index = 0; index < list.length; index++) {
-        title.push(list[index].label);
+        title.push(list[index].label)
       }
-      arr.push(title);
+      arr.push(title)
       for (let index = 0; index < data.length; index++) {
         for (let i = 0; i < list.length; i++) {
-          arr2.push(data[index][list[i].prop]);
+          arr2.push(data[index][list[i].prop])
         }
-        arr.push(arr2);
-        arr2 = [];
+        arr.push(arr2)
+        arr2 = []
       }
-      return arr;
-    },
-    _select(val) {
-      this.selectionItem = val;
-      this.arr[this.pagination.currentPage - 1] = Array.from(
-        new Set([...[], ...val])
-      );
-    },
-    _selectAll(val) {
-      this.arr[this.pagination.currentPage - 1] = val;
-    },
-    _selectionChange(val) {
-      this.selectionItem = val;
-    },
-    _sizeChange(val) {
-      this.pageSize = val;
-      this._currentChange(this.pagination.currentPage || 1);
-      this.arr = [];
-    },
-    _currentChange(val) {
-      this.pagination.currentPage = val;
-      this.pageChangeFun(this.tableData);
-    },
-    pageChangeFun(list) {
-      end = this.pagination.currentPage * this.pageSize;
-      this.pageData = [];
-      for (
-        let start = (this.pagination.currentPage - 1) * this.pageSize;
-        start < end;
-        start++
-      ) {
-        if (list[start]) {
-          this.pageData.push(list[start]);
-        }
-      }
-      setTimeout(_ => {
-        if (this.arr[this.pagination.currentPage - 1]) {
-          this.arr[this.pagination.currentPage - 1].forEach(row => {
-            this.$refs.table.toggleRowSelection(row);
-          });
-        }
-      }, 10);
-    },
-    setData(data) {
-      this.pagination.total = data.length;
-      if (this.pagination.total > this.pageSize) {
-        for (
-          let i = (this.pagination.currentPage - 1) * this.pageSize;
-          i < this.pageSize * this.pagination.currentPage;
-          i++
-        ) {
-          this.pageData.push(data[i]);
-        }
-      } else {
-        // this.$set(this.pageData, this.tableData)
-        this.pageData = this.tableData;
-      }
-      clearInterval(time);
-    },
-    getTableData() {
-      if (this.table.api) {
-        this.$axios
-          .get(this.table.api)
-          .then(res => {
-            this.tableData = res.data.data;
-          })
-          .catch(err => {
-            console.log(err);
-          });
-      } else {
-        this.tableData = this.table.data;
-      }
-      this.setData(this.tableData);
+      return arr
     }
-  },
-  mounted() {
-    if (this.table.console) {
-      if (this.table.console.show) this.consoleShow = true;
-    }
-    this.pagination.currentPage === undefined
-      ? (this.pagination.currentPage = 1)
-      : this.pagination.currentPage;
-    time = setInterval(_ => {
-      if (this.pageData.length === 0 && this.pagination.show) {
-        this.getTableData();
-      }
-    }, 1000);
   }
-};
+}
 </script>
 
 <style>

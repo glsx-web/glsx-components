@@ -92,6 +92,9 @@
         const data = this.data
         this.data_ = val === '' ? this.data : []
         if (val !== '') this.searchLabel(data)
+      },
+      data(val) {
+        this.data_ = this.data
       }
     },
     methods: {

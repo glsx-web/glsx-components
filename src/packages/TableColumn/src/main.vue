@@ -36,7 +36,7 @@
 
 <script type='text/ecmascript-6'>
 export default {
-  name: "GlTableColumn",
+  name: 'GlTableColumn',
   props: {
     type: String,
     index: [String, Function],
@@ -59,7 +59,7 @@ export default {
     showOverflowTooltip: Boolean,
     align: {
       type: String,
-      default: "left"
+      default: 'left'
     },
     headerAlign: String,
     className: String,
@@ -78,5 +78,5 @@ export default {
   data() {
     return {}
   }
-};
+}
 </script>
