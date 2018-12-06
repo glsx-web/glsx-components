@@ -28,6 +28,10 @@
         :header-cell-class-name="table.headerCellClassName"
         :header-cell-style="table.headerCellStyle"
         :default-expand-all="table.expandAll"
+        :select-on-indeterminate='table.selectOnIndeterminate'
+        :default-sort='table.defaultSort'
+        :expand-row-keys='table.expandRowKeys'
+        :row-key='table.rowKey'
         @select="select"
         @select-all="selectAll"
         @selection-change="selectionChange"
@@ -98,6 +102,20 @@
             :header-align="i.headerAlign || table.headerAlign"
             :formatter="i.formatter"
             :resizable="i.resizable"
+            :type="i.type"
+            :index="i.index"
+            :column-key="i.columnKey"
+            :sortable="i.sortable"
+            :sort-method="i.sortMethod"
+            :sort-by="i.sortBy"
+            :sort-orders="i.sortOrders"
+            :selectable="i.selectable"
+            :reserve-selection="i.reserveSelection"
+            :filters="i.filters"
+            :filter-placement="i.filterPlacement"
+            :filter-multiple="i.filterMultiple"
+            :filter-method="i.filterMethod"
+            :filtered-value="i.filteredValue"
           ></el-table-column>
         </template>
         <!-- 操作 -->
@@ -317,15 +335,7 @@ export default {
     },
     // 导出
     exportTable() {
-      const table = this.pagination.show
-        ? this.radio === '全部'
-          ? this.tableData
-          : this.radio === '当前页'
-            ? this.pageData
-            : this.select_items
-        : this.radio === '选中'
-          ? this.selectionItem
-          : this.table.data
+      const table = this.radio === '当前页' ? this.table.data : this.radio === '选中' ? this.selectionItem : this.table.data
       this.$prompt('请输入文件名', {
         confirmButtonText: '确 定 (Enter)',
         cancelButtonText: '取 消 (Esc)',
