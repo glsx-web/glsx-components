@@ -29,7 +29,11 @@
     :filtered-value="filteredValue"
   >
     <template slot-scope="scope">
-      <slot></slot>
+      <slot :scope='scope'>
+        {{scope.$index}}
+        {{scope.row}}
+        {{scope.column}}
+      </slot>
     </template>
   </el-table-column>
 </template>
