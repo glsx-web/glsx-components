@@ -1,5 +1,5 @@
 <template>
-  <div class="tableBox" :style="table.style,{width:'100%'}">
+  <div class="tableBox" :style="table.style" style='width:100%'>
     <div>
       <el-table
         ref="table"
